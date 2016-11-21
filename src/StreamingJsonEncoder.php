@@ -38,10 +38,30 @@ class StreamingJsonEncoder
     /** @var int */
     private $column;
 
+    /** @var int */
+    private $traversedBytes;
+
     public function __construct()
     {
         $this->indent = '    ';
         $this->newLine = false;
+    }
+
+    public function getErrors()
+    {
+        return $this->encodingErrors;
+    }
+
+    private function pushError($message)
+    {
+        $errorMessage = sprintf('Line %d, column %d: %s', $this->line, $this->column, $message);
+        $this->encodingErrors[] = $errorMessage;
+
+        if ($this->options & JSON_PARTIAL_OUTPUT_ON_ERROR) {
+            return;
+        }
+
+        throw new EncodingException($errorMessage);
     }
 
     public function encode($value, $options = 0)
@@ -52,54 +72,63 @@ class StreamingJsonEncoder
         $this->line = 1;
         $this->column = 1;
 
+        return $this->processValue($value);
+    }
+
+    private function resolveValue($value)
+    {
         while ($value instanceof \JsonSerializable) {
             $value = $value->jsonSerialize();
         }
 
+        return $value;
+    }
+
+    private function processValue($value)
+    {
+        $value = $this->resolveValue($value);
+
         if (is_array($value) || is_object($value)) {
-            $this->traverse($value);
-        } else {
-            $this->output($this->encodeValue($value));
+            if (empty($this->generatorStack)) {
+                return $this->traverse($value);
+            }
+
+            return $this->pushIterable($value);
         }
+
+        return $this->output($this->encodeValue($value));
     }
 
     private function traverse($traversable)
     {
+        $this->traversedBytes = 0;
         $this->generatorStack = [];
         $this->typeStack = [];
         $this->first = true;
 
-        $this->pushIterable($traversable);
+        $bytes = $this->pushIterable($traversable);
         $keySeparator = $this->options & JSON_PRETTY_PRINT ? ': ' : ':';
-        $null = json_encode(null);
 
         foreach ($this->traverseStack() as $key => $value) {
+            if (!is_int($key) && !is_string($key)) {
+                $this->pushError('Only string or integer keys are supported');
+                continue;
+            }
+
             if (!$this->first) {
-                $this->outputLine(',');
+                $bytes += $this->outputLine(',');
             }
 
             $this->first = false;
 
             if (end($this->typeStack)) {
-                $encoded = $this->encodeValue((string) $key);
-
-                if ($encoded === $null) {
-                    continue;
-                }
-
-                $this->output($encoded . $keySeparator);
+                $bytes += $this->output($this->encodeValue((string) $key) . $keySeparator);
             }
 
-            while ($value instanceof \JsonSerializable) {
-                $value = $value->jsonSerialize();
-            }
-
-            if (is_array($value) || is_object($value)) {
-                $this->pushIterable($value);
-            } else {
-                $this->output($this->encodeValue($value));
-            }
+            $bytes += $this->processValue($value);
         }
+
+        return $bytes + $this->traversedBytes;
     }
 
     private function pushIterable($iterable)
@@ -107,17 +136,23 @@ class StreamingJsonEncoder
         $this->generatorStack[] = $this->iterate($iterable);
         $this->first = true;
 
+        $isObject = $this->isObject($iterable);
+        $bytes = $this->outputLine($isObject ? '{' : '[');
+        $this->typeStack[] = $isObject;
+
+        return $bytes;
+    }
+
+    private function isObject($iterable)
+    {
         if ($this->options & JSON_FORCE_OBJECT) {
-            $object = true;
+            return true;
         } elseif (is_array($iterable)) {
-            $object = array_keys($iterable) !== range(0, count($iterable) - 1);
-        } else {
-            $generator = end($this->generatorStack);
-            $object = $generator->valid() && $generator->key() === 0;
+            return $iterable !== [] && array_keys($iterable) !== range(0, count($iterable) - 1);
         }
 
-        $this->outputLine($object ? '{' : '[');
-        $this->typeStack[] = $object;
+        $generator = end($this->generatorStack);
+        return $generator->valid() && $generator->key() !== 0;
     }
 
     private function popIterable()
@@ -129,7 +164,7 @@ class StreamingJsonEncoder
         $this->first = false;
         array_pop($this->generatorStack);
         $object = array_pop($this->typeStack);
-        $this->output($object ? '}' : ']');
+        return $this->output($object ? '}' : ']');
     }
 
     public function traverseStack()
@@ -141,7 +176,7 @@ class StreamingJsonEncoder
                 yield $active->key() => $active->current();
                 $active->next();
             } else {
-                $this->popIterable();
+                $this->traversedBytes += $this->popIterable();
             }
         }
     }
@@ -155,27 +190,35 @@ class StreamingJsonEncoder
 
     private function output($string)
     {
+        $bytes = 0;
+
         if ($this->newLine && $this->options & JSON_PRETTY_PRINT) {
-            $this->write("\n");
+            $bytes += $this->write("\n");
             $this->line++;
             $this->column = 1;
-            $this->write(str_repeat($this->indent, count($this->typeStack)));
+            $bytes += $this->write(str_repeat($this->indent, count($this->typeStack)));
         }
 
         $this->newLine = false;
-        $this->write($string);
+        $bytes += $this->write($string);
+
+        return $bytes;
     }
 
     private function outputLine($string)
     {
-        $this->output($string);
+        $bytes = $this->output($string);
         $this->newLine = true;
+
+        return $bytes;
     }
 
     private function write($string)
     {
         echo $string;
+
         $this->column += strlen($string);
+        return strlen($string);
     }
 
     private function encodeValue($value)
@@ -183,14 +226,8 @@ class StreamingJsonEncoder
         $encoded = json_encode($value, $this->options);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->encodingErrors[] =
-                sprintf('Line %d, column %d: %s', $this->line, $this->column, json_last_error_msg());
-
-            if ($this->options & JSON_PARTIAL_OUTPUT_ON_ERROR) {
-                return $encoded === false ? json_encode(null) : $encoded;
-            }
-
-            throw new EncodingException(end($this->encodingErrors));
+            $this->pushError(json_last_error_msg());
+            return $encoded === false ? json_encode(null) : $encoded;
         }
 
         return $encoded;

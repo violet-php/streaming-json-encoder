@@ -25,5 +25,11 @@
     "psr-4": {
       "Violet\\StreamingJsonEncoder\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Violet\\StreamingJsonEncoder\\": "tests/tests/",
+      "Violet\\StreamingJsonEncoder\\Test\\": "tests/classes/"
+    }
   }
 }
