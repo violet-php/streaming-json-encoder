@@ -3,6 +3,7 @@
 namespace Violet\StreamingJsonEncoder;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\CS\Tokenizer\Token;
 use Violet\StreamingJsonEncoder\Test\SerializableData;
 
 /**
@@ -12,7 +13,7 @@ use Violet\StreamingJsonEncoder\Test\SerializableData;
  * @copyright Copyright (c) 2016, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class StreamingJsonEncoderTest extends TestCase
+class JsonEncoderTest extends TestCase
 {
     public function testPrettyPrint()
     {
@@ -115,10 +116,10 @@ JSON;
 
     public function testInvalidDataType()
     {
-        $encoder = new StreamingJsonEncoder();
+        $encoder = new BufferJsonEncoder(fopen('php://memory', 'r'));
 
         $this->expectException(EncodingException::class);
-        $encoder->encode(fopen(__FILE__, 'r'));
+        $encoder->encode();
     }
 
     public function testNullOnInvalid()
@@ -136,11 +137,11 @@ JSON;
         ];
         $result = ['key 1' => null, "key 2" => ['one' => 'two']];
 
-        $errors = $this->assertEncodingResult($expectedJson, $result, $array, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $encoder = $this->assertEncodingResult($expectedJson, $result, $array, JSON_PARTIAL_OUTPUT_ON_ERROR);
         $this->assertSame([
             'Line 1, column 10: Type is not supported',
             'Line 1, column 35: Only string or integer keys are supported',
-        ], $errors);
+        ], $encoder->getErrors());
     }
 
     /**
@@ -148,10 +149,13 @@ JSON;
      */
     public function testSimpleValues($value)
     {
-        $encoder = new StreamingJsonEncoder();
+        $encoder = new StreamJsonEncoder($value);
+        $json = json_encode($value);
 
-        $this->expectOutputString(json_encode($value));
-        $encoder->encode($value);
+        $this->expectOutputString($json);
+        $bytes = $encoder->encode();
+
+        $this->assertSame(strlen($json), $bytes);
     }
 
     public function getSimpleTestValues()
@@ -171,13 +175,127 @@ JSON;
         ];
     }
 
+    public function testOptionsDuringEncoding()
+    {
+        $encoder = new BufferJsonEncoder('string');
+        $encoder->rewind();
+
+        $this->expectException(\RuntimeException::class);
+        $encoder->setOptions(0);
+    }
+
+    public function testIndentDuringEncoding()
+    {
+        $encoder = new BufferJsonEncoder('string');
+        $encoder->rewind();
+
+        $this->expectException(\RuntimeException::class);
+        $encoder->setIndent(4);
+    }
+
+    public function testNumericIndent()
+    {
+        $encoder = new BufferJsonEncoder(['value']);
+        $encoder->setIndent(2);
+        $encoder->setOptions(JSON_PRETTY_PRINT);
+
+        $this->assertSame(
+            "[\n  \"value\"\n]",
+            $encoder->encode()
+        );
+    }
+
+    public function testStringIndent()
+    {
+        $encoder = new BufferJsonEncoder(['value']);
+        $encoder->setIndent("\t");
+        $encoder->setOptions(JSON_PRETTY_PRINT);
+
+        $this->assertSame(
+            "[\n\t\"value\"\n]",
+            $encoder->encode()
+        );
+    }
+
+    public function testTokenList()
+    {
+        $data = ['key 1' => 'value', 'key 2' => ['sub 1', 'sub 2']];
+        $actualTokens = [];
+        $expectedTokens = [
+            Tokens::OPEN_OBJECT,
+            Tokens::WHITESPACE,
+            Tokens::WHITESPACE,
+            Tokens::KEY,
+            Tokens::SEPARATOR,
+            Tokens::WHITESPACE,
+            Tokens::VALUE,
+            Tokens::COMMA,
+            Tokens::WHITESPACE,
+            Tokens::WHITESPACE,
+            Tokens::KEY,
+            Tokens::SEPARATOR,
+            Tokens::WHITESPACE,
+            Tokens::OPEN_ARRAY,
+            Tokens::WHITESPACE,
+            Tokens::WHITESPACE,
+            Tokens::VALUE,
+            Tokens::COMMA,
+            Tokens::WHITESPACE,
+            Tokens::WHITESPACE,
+            Tokens::VALUE,
+            Tokens::WHITESPACE,
+            Tokens::WHITESPACE,
+            Tokens::CLOSE_ARRAY,
+            Tokens::WHITESPACE,
+            Tokens::CLOSE_OBJECT,
+        ];
+
+        $gatherTokens = function ($string, $token) use (& $actualTokens) {
+            $actualTokens[] = $token;
+        };
+
+        $encoder = new StreamJsonEncoder($data, $gatherTokens);
+        $encoder->setOptions(JSON_PRETTY_PRINT);
+        $encoder->encode();
+
+        $this->assertSame($expectedTokens, $actualTokens);
+
+        $actualTokens = [];
+        $encoder = new StreamJsonEncoder($data, $gatherTokens);
+        $encoder->encode();
+
+        $realTokens = array_values(array_filter($expectedTokens, function ($value) {
+            return $value !== Tokens::WHITESPACE;
+        }));
+
+        $this->assertSame($realTokens, $actualTokens);
+    }
+
+    public function testEncoderIterationKey()
+    {
+        $encoder = new BufferJsonEncoder('value');
+
+        $this->assertSame(null, $encoder->key());
+        $this->assertSame(false, $encoder->valid());
+
+        $encoder->rewind();
+        $this->assertSame(0, $encoder->key());
+        $this->assertSame(true, $encoder->valid());
+
+        $encoder->next();
+        $this->assertSame(null, $encoder->key());
+        $this->assertSame(false, $encoder->valid());
+    }
+
     public function assertEncodingResult($expectedJson, $expectedData, $initialData, $options = 0)
     {
-        $encoder = new StreamingJsonEncoder();
-        $this->expectOutputString($expectedJson);
-        $this->assertSame(strlen($expectedJson), $encoder->encode($initialData, $options));
-        $this->assertSame($expectedData, json_decode($expectedJson, true));
+        $encoder = new BufferJsonEncoder($initialData);
+        $encoder->setOptions($options);
+        $output = $encoder->encode();
 
-        return $encoder->getErrors();
+        $this->assertSame($expectedJson, $output);
+        $this->assertSame($expectedData, json_decode($output, true));
+
+        return $encoder;
     }
 }
