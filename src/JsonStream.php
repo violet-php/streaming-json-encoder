@@ -28,7 +28,7 @@ class JsonStream implements StreamInterface
     private function getEncoder()
     {
         if (!$this->encoder instanceof BufferJsonEncoder) {
-            throw new RuntimeException("Cannot operate on a closed JSON stream");
+            throw new RuntimeException('Cannot operate on a closed JSON stream');
         }
 
         return $this->encoder;
@@ -80,7 +80,7 @@ class JsonStream implements StreamInterface
         if ($whence === SEEK_CUR) {
             $position = max(0, $this->cursor + (int) $offset);
         } elseif ($whence === SEEK_END) {
-            throw new \RuntimeException("Cannot set cursor position from the end of a JSON stream");
+            throw new \RuntimeException('Cannot set cursor position from the end of a JSON stream');
         } else {
             $position = max(0, (int) $offset);
         }

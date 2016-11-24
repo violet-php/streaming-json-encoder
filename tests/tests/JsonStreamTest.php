@@ -17,14 +17,14 @@ class JsonStreamTest extends TestCase
     {
         $stream = new JsonStream(['key' => 'value']);
 
-        $this->assertSame(false, $stream->eof());
+        $this->assertFalse($stream->eof());
         $this->assertSame(0, $stream->tell());
         $this->assertSame('{', $stream->read(1));
         $this->assertSame(1, $stream->tell());
-        $this->assertSame(false, $stream->eof());
+        $this->assertFalse($stream->eof());
         $this->assertSame('"key":"value"}', $stream->read(14));
         $this->assertSame(15, $stream->tell());
-        $this->assertSame(true, $stream->eof());
+        $this->assertTrue($stream->eof());
         $this->assertSame('', $stream->read(1));
     }
 
@@ -67,13 +67,13 @@ class JsonStreamTest extends TestCase
     {
         $stream = new JsonStream('value');
 
-        $this->assertSame(null, $stream->detach());
-        $this->assertSame(null, $stream->getSize());
-        $this->assertSame(true, $stream->isSeekable());
-        $this->assertSame(false, $stream->isWritable());
-        $this->assertSame(true, $stream->isReadable());
+        $this->assertNull($stream->detach());
+        $this->assertNull($stream->getSize());
+        $this->assertTrue($stream->isSeekable());
+        $this->assertFalse($stream->isWritable());
+        $this->assertTrue($stream->isReadable());
         $this->assertSame([], $stream->getMetadata());
-        $this->assertSame(null, $stream->getMetadata('seekable'));
+        $this->assertNull($stream->getMetadata('seekable'));
     }
 
     public function testWriting()

@@ -11,5 +11,4 @@ namespace Violet\StreamingJsonEncoder;
  */
 class EncodingException extends \Exception
 {
-
 }

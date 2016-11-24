@@ -3,7 +3,6 @@
 namespace Violet\StreamingJsonEncoder;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\CS\Tokenizer\Token;
 use Violet\StreamingJsonEncoder\Test\SerializableData;
 
 /**
@@ -47,7 +46,7 @@ JSON;
                 [
                     'foo',
                 ],
-            ]
+            ],
         ];
 
         $this->assertEncodingResult($expectedJson, $array, $array, JSON_PRETTY_PRINT);
@@ -108,7 +107,7 @@ JSON;
         $serializable = new SerializableData(new SerializableData([
             'key 1' => new SerializableData([
                 'sub key 1' => 'sub value 1',
-            ])
+            ]),
         ]));
 
         $this->assertEncodingResult($expectedJson, ['key 1' => ['sub key 1' => 'sub value 1']], $serializable);
@@ -133,9 +132,9 @@ JSON;
         $expectedJson = '{"key 1":null,"key 2":{"one":"two"}}';
         $array = [
             'key 1' => fopen('php://memory', 'r'),
-            "key 2" => $generator(),
+            'key 2' => $generator(),
         ];
-        $result = ['key 1' => null, "key 2" => ['one' => 'two']];
+        $result = ['key 1' => null, 'key 2' => ['one' => 'two']];
 
         $encoder = $this->assertEncodingResult($expectedJson, $result, $array, JSON_PARTIAL_OUTPUT_ON_ERROR);
         $this->assertSame([
@@ -171,7 +170,7 @@ JSON;
                 'key 1' => 'value 1',
                 'key 2' => 'value 2',
             ]],
-            [['value 1', 'value 2', 'value 3']]
+            [['value 1', 'value 2', 'value 3']],
         ];
     }
 
