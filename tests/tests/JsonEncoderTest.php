@@ -275,8 +275,8 @@ JSON;
     {
         $encoder = new BufferJsonEncoder('value');
 
-        $this->assertSame(null, $encoder->key());
-        $this->assertSame(false, $encoder->valid());
+        $this->assertSame(0, $encoder->key());
+        $this->assertSame(true, $encoder->valid());
 
         $encoder->rewind();
         $this->assertSame(0, $encoder->key());

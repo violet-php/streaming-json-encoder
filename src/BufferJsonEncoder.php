@@ -16,13 +16,13 @@ class BufferJsonEncoder extends AbstractJsonEncoder
 
     public function encode()
     {
-        $json = '';
+        $json = [];
 
         foreach ($this as $string) {
-            $json .= $string;
+            $json[] = $string;
         }
 
-        return $json;
+        return implode($json);
     }
 
     public function rewind()

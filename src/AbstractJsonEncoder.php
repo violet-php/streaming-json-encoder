@@ -78,13 +78,24 @@ abstract class AbstractJsonEncoder implements \Iterator
         return $this->errors;
     }
 
+    private function initialize()
+    {
+        if (!isset($this->stack)) {
+            $this->rewind();
+        }
+    }
+
     public function key()
     {
+        $this->initialize();
+
         return $this->step;
     }
 
     public function valid()
     {
+        $this->initialize();
+
         return $this->step !== null;
     }
 
@@ -92,6 +103,10 @@ abstract class AbstractJsonEncoder implements \Iterator
 
     public function rewind()
     {
+        if ($this->step === 0) {
+            return;
+        }
+
         $this->stack = [];
         $this->stackType = [];
         $this->errors = [];
@@ -106,6 +121,8 @@ abstract class AbstractJsonEncoder implements \Iterator
 
     public function next()
     {
+        $this->initialize();
+
         if (!empty($this->stack)) {
             $this->step++;
             $generator = end($this->stack);
