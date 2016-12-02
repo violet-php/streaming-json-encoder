@@ -2,8 +2,6 @@
 
 namespace Violet\StreamingJsonEncoder;
 
-use SebastianBergmann\CodeCoverage\RuntimeException;
-
 /**
  * AbstractJsonEncoder.
  *
@@ -58,19 +56,21 @@ abstract class AbstractJsonEncoder implements \Iterator
     public function setOptions($options)
     {
         if ($this->step !== null) {
-            throw new RuntimeException('Cannot change encoding options during encoding');
+            throw new \RuntimeException('Cannot change encoding options during encoding');
         }
 
         $this->options = (int) $options;
+        return $this;
     }
 
     public function setIndent($indent)
     {
         if ($this->step !== null) {
-            throw new RuntimeException('Cannot change indent during encoding');
+            throw new \RuntimeException('Cannot change indent during encoding');
         }
 
         $this->indent = is_int($indent) ? str_repeat(' ', $indent) : (string) $indent;
+        return $this;
     }
 
     public function getErrors()

@@ -39,6 +39,19 @@ class JsonStreamTest extends TestCase
         $stream->seek(-6, SEEK_CUR);
         $this->assertSame('"', $stream->read(1));
         $this->assertSame(8, $stream->tell());
+
+        $stream->seek(100);
+        $this->assertSame(15, $stream->tell());
+        $this->assertTrue($stream->eof());
+        $this->assertSame('', $stream->read(1));
+
+        $stream->seek(9);
+        $this->assertFalse($stream->eof());
+        $this->assertSame(9, $stream->tell());
+        $this->assertSame('a', $stream->read(1));
+        $stream->seek(11);
+        $this->assertSame(11, $stream->tell());
+        $this->assertSame('u', $stream->read(1));
     }
 
     public function testReadAfterClose()
@@ -54,6 +67,7 @@ class JsonStreamTest extends TestCase
     {
         $stream = new JsonStream(['key' => 'value']);
         $this->assertSame('{"key":"value"}', (string) $stream);
+        $this->assertTrue($stream->eof());
     }
 
     public function testToStringAfterClose()
@@ -90,5 +104,22 @@ class JsonStreamTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $stream->seek(2, SEEK_END);
+    }
+
+    public function testInvalidSeekWhence()
+    {
+        $stream = new JsonStream('value');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $stream->seek(2, 'invalid');
+    }
+
+    public function testPrettyPrintStream()
+    {
+        $encoder = (new BufferJsonEncoder(['value']))
+            ->setOptions(JSON_PRETTY_PRINT);
+
+        $stream = new JsonStream($encoder);
+        $this->assertSame("[\n    \"value\"\n]", $stream->getContents());
     }
 }
