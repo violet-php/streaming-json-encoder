@@ -134,7 +134,7 @@ class JsonStream implements StreamInterface
      * encoding the entire value, it's not possible to set the cursor using SEEK_END
      * constant and doing so will result in an exception.
      *
-     * @param int $offset The offset for the cursor.
+     * @param int $offset The offset for the cursor
      * @param int $whence Either SEEK_CUR or SEEK_SET to determine new cursor position
      */
     public function seek($offset, $whence = SEEK_SET)
@@ -171,7 +171,7 @@ class JsonStream implements StreamInterface
 
     /**
      * Forwards the JSON stream reading cursor to the given position or to the end of stream.
-     * @param int $position The new position of the cursor.
+     * @param int $position The new position of the cursor
      */
     private function forward($position)
     {
@@ -304,7 +304,7 @@ class JsonStream implements StreamInterface
      * As no underlying PHP stream exists for the JSON stream, this method will
      * always return an empty array or a null.
      *
-     * @param string|null The key of the value to return
+     * @param string|null $key The key of the value to return
      * @return array|null Always returns an empty array or a null
      */
     public function getMetadata($key = null)

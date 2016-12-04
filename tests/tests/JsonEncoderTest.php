@@ -144,6 +144,7 @@ JSON;
     }
 
     /**
+     * @param mixed $value The value to encode
      * @dataProvider getSimpleTestValues
      */
     public function testSimpleValues($value)
