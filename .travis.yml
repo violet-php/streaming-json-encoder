@@ -32,7 +32,7 @@ script:
       vendor/bin/phpunit --coverage-clover=coverage.clover --coverage-text;
     fi
   - vendor/bin/phpcs --standard=PSR2 src tests
-  - vendor/bin/php-cs-fixer fix -v --dry-run --diff --allow-risky=yes --use-cache=no
+  - vendor/bin/php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
 
 after_script:
   - >
