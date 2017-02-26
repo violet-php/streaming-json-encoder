@@ -12,12 +12,19 @@ the built in `json_encode` function, there are two main advantages:
     memory, since the JSON document will be encoded value by value and it's
     possible to output the encoded document piece by piece.
     
-In other words, the Streaming JSON encoder can provide the greatest benefit
-when you need handle large data sets that may otherwise take up too much memory
-to process.
+In other words, the Streaming JSON Encoder can provide the greatest benefit
+when you need to handle large data sets that may otherwise take up too much
+memory to process.
 
 In order to increase interoperability, the library also provides a PSR-7
 compatible stream to use with frameworks and HTTP requests.
+
+API documentation for the library can be generated using Sami and found
+[online](https://violet.riimu.net/api/streaming-json-encoder/).
+
+[![Travis](https://img.shields.io/travis/violet-php/streaming-json-encoder.svg?style=flat-square)](https://travis-ci.org/violet-php/streaming-json-encoder)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
 
 ## Requirements ##
 
@@ -61,7 +68,7 @@ the installation.
 ### Manual installation ###
 
 If you do not wish to use Composer to load the library, you may also download
-the library manually by downloading the [latest release](https://github.com/violet/streaming-json-encoder/releases/latest)
+the library manually by downloading the [latest release](https://github.com/violet-php/streaming-json-encoder/releases/latest)
 and extracting the `src` folder to your project. You may then include the
 provided `src/autoload.php` file to load the library classes.
 
@@ -109,10 +116,9 @@ foreach ($encoder as $string) {
 }
 ```
 
-It's also worth noting that the encoder also supports iterators for values.
-What's more, any closure passed to the encoder will also be called and the
-return value used as the value instead. The previous example could also be
-written as:
+It's also worth noting that the encoder supports iterators for values. What's
+more, any closure passed to the encoder will also be called and the return value
+used as the value instead. The previous example could also be written as:
 
 ```php
 <?php
@@ -225,34 +231,36 @@ array, the encoder makes the following decisions:
   * Only arrays that have keys from 0 to n-1 in that order are encoded as JSON
     arrays. All other arrays are encoded as objects.
   * Any object is encoded as a JSON array if the key of the first value
-    returned by iterating over the objects equals to `0`. All other objects are
+    returned by iterating over the object equals to `0`. All other objects are
     encoded as JSON objects.
     
 Additionally, prior to the decision whether to encode an object as an array or
-an object is made, the encoder will attempt to resolve the value as follows:
+as an object is made, the encoder will attempt to resolve the value as follows:
 
-  * As long as the processed value is a `JsonSerializable`, it will replace the
-    processed value with the return value of the `jsonSerialize()` method.
+  * As long as the processed value is a `JsonSerializable`, the encoder will
+    replace the processed value with the return value of the `jsonSerialize()`
+    method.
   * As long as the processed value is a `Closure`, it will be replaced with the
-    value returned by invoking the closure in question.
+    value returned by invoking the closure.
     
-Note that it's possible to override the array or object decision by using the
-`JSON_FORCE_OBJECT` option.
+Note that it's possible to override the decision between an array or an object
+by using the `JSON_FORCE_OBJECT` option, which will force all objects and arrays
+to be encoded as JSON objects.
 
 ### JSON encoding options ###
 
 Both `BufferJsonEncoder` and `StreamJsonEncoder` have a method `setOptions()` to
 change the JSON encoding options. The accepted options are the same as those
 accepted by `json_encode()` function. The encoder still internally uses the
-`json_encode()` method to encode other values than arrays or object. A few
+`json_encode()` method to encode values other than arrays or object. A few
 options also have additional effects on the encoders:
 
-  * Using `JSON_FORCE_OBJECT` will force all arrays and values to be encoded
+  * Using `JSON_FORCE_OBJECT` will force all arrays and objects to be encoded
     as JSON objects similar to `json_encode()`.
-  * Using `JSON_PRETTY_PRINT` causes the encoder to output whitespace to make
-    a more readable output. The indentation used can be changed using the
-    method `setIndent()` which accepts either a string argument to use as the
-    indent or an integer to indicate the number of spaces.
+  * Using `JSON_PRETTY_PRINT` causes the encoder to output whitespace to in
+    order to make the output more readable. The used indentation can be changed
+    using the method `setIndent()` which accepts either a string argument to use
+    as the indent or an integer to indicate the number of spaces.
   * Using `JSON_PARTIAL_OUTPUT_ON_ERROR` will cause the encoder to continue the
     output despite encoding errors. Otherwise the encoding will halt and the
     encoder will throw an `EncodingException`.
