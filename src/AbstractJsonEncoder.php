@@ -232,7 +232,7 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
-     * Tells if the given value should be resolved prior to encoding
+     * Tells if the given value should be resolved prior to encoding.
      * @param mixed $value The value to test
      * @return bool true if the value is resolvable, false if not
      */
