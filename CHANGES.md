@@ -1,5 +1,5 @@
 # Changelog #
 
-## v1.0.0 (2016-11-24) ##
+## v1.0.0 (?) ##
 
   * Initial release

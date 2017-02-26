@@ -86,8 +86,25 @@ class JsonStreamTest extends TestCase
         $this->assertTrue($stream->isSeekable());
         $this->assertFalse($stream->isWritable());
         $this->assertTrue($stream->isReadable());
-        $this->assertSame([], $stream->getMetadata());
-        $this->assertNull($stream->getMetadata('seekable'));
+    }
+
+    public function testMetaData()
+    {
+        $stream = new JsonStream('value');
+
+        $this->assertSame(null, $stream->getMetadata('key_that_does_not_exist'));
+        $this->assertSame(true, $stream->getMetadata('seekable'));
+        $this->assertSame(['timed_out',
+            'blocked',
+            'eof',
+            'unread_bytes',
+            'stream_type',
+            'wrapper_type',
+            'wrapper_data',
+            'mode',
+            'seekable',
+            'uri'
+        ], array_keys($stream->getMetadata()));
     }
 
     public function testWriting()

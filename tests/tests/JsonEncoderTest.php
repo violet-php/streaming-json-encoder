@@ -222,32 +222,32 @@ JSON;
         $data = ['key 1' => 'value', 'key 2' => ['sub 1', 'sub 2']];
         $actualTokens = [];
         $expectedTokens = [
-            Tokens::OPEN_OBJECT,
-            Tokens::WHITESPACE,
-            Tokens::WHITESPACE,
-            Tokens::KEY,
-            Tokens::SEPARATOR,
-            Tokens::WHITESPACE,
-            Tokens::VALUE,
-            Tokens::COMMA,
-            Tokens::WHITESPACE,
-            Tokens::WHITESPACE,
-            Tokens::KEY,
-            Tokens::SEPARATOR,
-            Tokens::WHITESPACE,
-            Tokens::OPEN_ARRAY,
-            Tokens::WHITESPACE,
-            Tokens::WHITESPACE,
-            Tokens::VALUE,
-            Tokens::COMMA,
-            Tokens::WHITESPACE,
-            Tokens::WHITESPACE,
-            Tokens::VALUE,
-            Tokens::WHITESPACE,
-            Tokens::WHITESPACE,
-            Tokens::CLOSE_ARRAY,
-            Tokens::WHITESPACE,
-            Tokens::CLOSE_OBJECT,
+            JsonToken::T_LEFT_BRACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_NAME,
+            JsonToken::T_COLON,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_VALUE,
+            JsonToken::T_COMMA,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_NAME,
+            JsonToken::T_COLON,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_LEFT_BRACKET,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_VALUE,
+            JsonToken::T_COMMA,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_VALUE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_RIGHT_BRACKET,
+            JsonToken::T_WHITESPACE,
+            JsonToken::T_RIGHT_BRACE,
         ];
 
         $gatherTokens = function ($string, $token) use (& $actualTokens) {
@@ -265,7 +265,7 @@ JSON;
         $encoder->encode();
 
         $realTokens = array_values(array_filter($expectedTokens, function ($value) {
-            return $value !== Tokens::WHITESPACE;
+            return $value !== JsonToken::T_WHITESPACE;
         }));
 
         $this->assertSame($realTokens, $actualTokens);

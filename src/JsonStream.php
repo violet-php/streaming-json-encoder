@@ -29,7 +29,9 @@ class JsonStream implements StreamInterface
     public function __construct($value)
     {
         if (!$value instanceof BufferJsonEncoder) {
-            $value = new BufferJsonEncoder($value);
+            $value = (new BufferJsonEncoder($value))
+                ->setOptions(JSON_PARTIAL_OUTPUT_ON_ERROR)
+                ->setIndent(0);
         }
 
         $this->encoder = $value;
@@ -78,8 +80,8 @@ class JsonStream implements StreamInterface
     }
 
     /**
-     * Detaches the underlying PHP stream and returns it.
-     * @return null Always returns null as no underlying PHP stream exists
+     * Detaches the underlying PHP resource from the stream and returns it.
+     * @return null Always returns null as no underlying PHP resource exists
      */
     public function detach()
     {
@@ -136,6 +138,7 @@ class JsonStream implements StreamInterface
      *
      * @param int $offset The offset for the cursor
      * @param int $whence Either SEEK_CUR or SEEK_SET to determine new cursor position
+     * @throws \RuntimeException If SEEK_END is used to determine the cursor position
      */
     public function seek($offset, $whence = SEEK_SET)
     {
@@ -155,6 +158,7 @@ class JsonStream implements StreamInterface
      * @param int $offset The cursor offset
      * @param int $whence One of the SEEK_* constants
      * @return int The new cursor position
+     * @throws \RuntimeException If SEEK_END is used to determine the cursor position
      */
     private function calculatePosition($offset, $whence)
     {
@@ -299,16 +303,33 @@ class JsonStream implements StreamInterface
     }
 
     /**
-     * Returns the metadata from the underlying PHP stream.
+     * Returns the metadata related to the JSON stream.
      *
-     * As no underlying PHP stream exists for the JSON stream, this method will
-     * always return an empty array or a null.
+     * No underlying PHP resource exists for the stream, but this method will
+     * still return relevant information regarding the stream that is similar
+     * to PHP stream meta data.
      *
      * @param string|null $key The key of the value to return
-     * @return array|null Always returns an empty array or a null
+     * @return array|mixed|null The meta data array, a specific value or null if not defined
      */
     public function getMetadata($key = null)
     {
-        return $key === null ? [] : null;
+        $meta = [
+            'timed_out' => false,
+            'blocked' => true,
+            'eof' => $this->eof(),
+            'unread_bytes' => strlen($this->buffer),
+            'stream_type' => get_class($this->encoder),
+            'wrapper_type' => 'OBJECT',
+            'wrapper_data' => [
+                'step' => $this->encoder->key(),
+                'errors' => $this->encoder->getErrors()
+            ],
+            'mode' => 'r',
+            'seekable' => true,
+            'uri' => '',
+        ];
+
+        return $key === null ? $meta : (isset($meta[$key]) ? $meta[$key] : null);
     }
 }

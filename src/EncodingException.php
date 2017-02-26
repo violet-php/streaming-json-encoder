@@ -3,7 +3,7 @@
 namespace Violet\StreamingJsonEncoder;
 
 /**
- * EncodingException.
+ * Exception that gets thrown when error occurs in JSON encoding and the encoder cannot continue.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2016, Riikka Kalliomäki
