@@ -22,8 +22,7 @@
   "require-dev": {
     "phpunit/phpunit": "^5.7 || ^6.0",
     "squizlabs/php_codesniffer": "^2.8",
-    "friendsofphp/php-cs-fixer": "^2.1",
-    "sami/sami": "^4.0"
+    "friendsofphp/php-cs-fixer": "^2.1"
   },
   "autoload": {
     "psr-4": {
