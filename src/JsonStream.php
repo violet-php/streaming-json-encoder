@@ -13,13 +13,13 @@ use Psr\Http\Message\StreamInterface;
  */
 class JsonStream implements StreamInterface
 {
-    /** @var BufferJsonEncoder The encoder used to produce the JSON stream */
+    /** @var BufferJsonEncoder|null The encoder used to produce the JSON stream or null once closed */
     private $encoder;
 
     /** @var int The current position of the cursor in the JSON stream */
     private $cursor;
 
-    /** @var string Buffered output from encoding the value as JSON */
+    /** @var string|null Buffered output from encoding the value as JSON or null when at EOF */
     private $buffer;
 
     /**

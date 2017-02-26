@@ -11,8 +11,13 @@ namespace Violet\StreamingJsonEncoder\Test;
  */
 class SerializableData implements \JsonSerializable
 {
+    /** @var mixed */
     private $data;
 
+    /**
+     * SerializableData constructor.
+     * @param mixed $data
+     */
     public function __construct($data)
     {
         $this->data = $data;

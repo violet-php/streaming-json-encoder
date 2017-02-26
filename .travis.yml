@@ -14,11 +14,9 @@ cache:
 
 before_install:
   - if [[ $TRAVIS_PHP_VERSION =~ ^7 ]]; then phpenv config-rm xdebug.ini; fi
-  - composer self-update
 
 install:
-  - composer require --no-update --no-interaction "phpunit/phpunit:*" "squizlabs/php_codesniffer:*" "friendsofphp/php-cs-fixer:*"
-  - travis_retry composer update --no-interaction --prefer-source
+  - travis_retry composer update --no-interaction
   - travis_retry wget https://scrutinizer-ci.com/ocular.phar
 
 before_script:

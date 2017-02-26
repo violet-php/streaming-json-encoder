@@ -128,7 +128,7 @@ class JsonStreamTest extends TestCase
         $stream = new JsonStream('value');
 
         $this->expectException(\InvalidArgumentException::class);
-        $stream->seek(2, 'invalid');
+        $stream->seek(2, -1);
     }
 
     public function testPrettyPrintStream()
