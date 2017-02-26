@@ -1,30 +1,50 @@
-# Streaming Json Encoder #
+# Streaming JSON Encoder #
 
+*Streaming JSON Encoder* is a PHP library that provides a set of classes to help
+with encoding JSON in a streaming manner, i.e. allowing you to encode the JSON
+document bit by bit rather than encoding the whole document at once. Compared to
+the built in `json_encode` function, there are two main advantages:
 
+  * You will not need to load the entire data set into memory, as the encoder
+    supports iterating over both arrays and any kind of iterators, like
+    generators, for example.
+  * You will not need to load the entire resulting JSON document into the
+    memory, since the JSON document will be encoded value by value and it's
+    possible to output the encoded document piece by piece.
+    
+In other words, the Streaming JSON encoder can provide the greatest benefit
+when you need handle large data sets that may otherwise take up too much memory
+to process.
+
+In order to increase interoperability, the library also provides a PSR-7
+compatible stream to use with frameworks and HTTP requests.
 
 ## Requirements ##
 
 In order to use this library, the following requirements must be met:
 
-  * PHP version 5.6
+  * PHP version 5.6, 7.0 or later
+  * The PHP library `psr/http-message` must be available
 
 ## Installation ##
 
-This library can be installed by using [Composer](http://getcomposer.org/). In
-order to do this, you must download the latest Composer version and run the
-`require` command to add this library as a dependency to your project. The
-easiest way to complete these two tasks is to run the following two commands
-in your terminal:
+The easiest way to install this library is to use Composer to handle your
+dependencies. In order to install this library via Composer, simply follow
+the following two steps:
 
-```
-php -r "readfile('https://getcomposer.org/installer');" | php
-php composer.phar require "violet/streaming-json-encoder:^1.0"
-```
-
-If you already have Composer installed on your system and you know how to use
-it, you can also install this library by adding it as a dependency to your
-`composer.json` file and running the `composer install` command. Here is an
-example of what your `composer.json` file could look like:
+  1. Acquire the `composer.phar` by running in your project root the
+     Command-line installation script found at the [Composer
+     Download](https://getcomposer.org/download/) page.
+  2. Once you've run the installation script, you should have a `composer.phar` 
+     file in you project root and you can run the following command:
+    
+     ```
+     php composer.phar require "violet/streaming-json-encoder:^1.0"
+     ```
+    
+If you are already familiar with how to use Composer, you may also alternatively
+simply add the library as a dependency by adding the following `composer.json`
+file to your project and running the `composer install` command:
 
 ```json
 {
@@ -40,15 +60,202 @@ the installation.
 
 ### Manual installation ###
 
-You can also install this library manually without using Composer. In order to
-do this, you must download the [latest release](https://github.com/violet/streaming-json-encoder/releases/latest)
-and extract the `src` folder from the archive to your project folder. To load
-the library, you can simply include the `src/autoload.php` file that was
-provided in the archive.
+If you do not wish to use Composer to load the library, you may also download
+the library manually by downloading the [latest release](https://github.com/violet/streaming-json-encoder/releases/latest)
+and extracting the `src` folder to your project. You may then include the
+provided `src/autoload.php` file to load the library classes.
+
+Please note that using Composer will also automatically download the other
+required PHP libraries. If you install this library manually, you will need to
+also make those other required libraries available. 
 
 ## Usage ##
 
+This library offers 3 main different ways to use the library via the classes
+`BufferJsonEncoder`, `StreamJsonEncoder` and the PSR-7 compatible stream
+`JsonStream`.
 
+### Using BufferJsonEncoder ###
+
+The buffer encoder is most useful when you need to generate the JSON document
+in a way that does not involve passing callbacks to handle the generated JSON.
+
+The easiest way to use the `BufferJsonEncoder` is to instantiate it with the
+JSON value to encode and call the `encode()` method to return the entire output
+as a string:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$encoder = new \Violet\StreamingJsonEncoder\BufferJsonEncoder(['array_value']);
+echo $encoder->encode();
+```
+
+The most useful way to use this encoder, however, is to use it as an iterator.
+As the encoder implements the `Iterator` interface, you can simply loop over the
+generated JSON with a foreach loop:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$encoder = new \Violet\StreamingJsonEncoder\BufferJsonEncoder(range(0, 10));
+
+foreach ($encoder as $string) {
+    echo $string;
+}
+```
+
+It's also worth noting that the encoder also supports iterators for values.
+What's more, any closure passed to the encoder will also be called and the
+return value used as the value instead. The previous example could also be
+written as:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$encoder = new \Violet\StreamingJsonEncoder\BufferJsonEncoder(function () {
+    for ($i = 0; $i <= 10; $i++) {
+        yield $i;
+    }
+});
+
+foreach ($encoder as $string) {
+    echo $string;
+}
+```
+
+As a side note, the encoder will respect the `JsonSerializable` interface as
+well and will call the `jsonSerialize` for objects that implement the interface.
+
+### Using StreamJsonEncoder ###
+
+The stream encoder works very similarly to the `BufferJsonEncoder` as they
+extend the same abstract class. However, the key difference is in how they
+handle passing the JSON output.
+
+The `StreamJsonEncoder` accepts a callable as the second constructor argument.
+Whenever JSON needs to be outputted, this callable is called with two arguments,
+the actual string to output and the type of the token to output (which is one
+of the `JsonToken` constants).
+
+If no callable is passed, the StreamJsonEncoder will simply output the JSON
+using an echo statement. For example:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$encoder = new \Violet\StreamingJsonEncoder\StreamJsonEncoder(['array_value']);
+$encoder->encode();
+```
+
+The `encode()` method in `StreamJsonEncoder` returns the total number of bytes
+it passed to the output. This encoder makes it convenient, for example, to
+write the JSON to file in a streaming manner. For example:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$fp = fopen('test.json', 'w');
+$encoder = new \Violet\StreamingJsonEncoder\StreamJsonEncoder(
+    range(1, 100),
+    function ($json) use ($fp) {
+        fwrite($fp, $json);
+    }
+);
+
+$encoder->encode();
+fclose($fp);
+```
+
+### Using JsonStream ###
+
+The stream class provides a PSR-7 compatible `StreamInterface` for streaming
+JSON content. It actually uses the `BufferJsonEncoder` to do the hard work and
+simply wraps the calls in a stream like fashion.
+
+The constructor of `JsonStream` either accepts a value to encode as JSON or an
+instance of `BufferJsonEncoder` (which allows you to set the encoding options).
+You can then operate on the stream using the methods provided by the PSR-7
+interface. For example:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$iterator = function () {
+    foreach (new DirectoryIterator(__DIR__) as $file) {
+        yield $file->getFilename();
+    }
+};
+
+$encoder = (new \Violet\StreamingJsonEncoder\BufferJsonEncoder($iterator))
+    ->setOptions(JSON_PRETTY_PRINT);
+
+$stream = new \Violet\StreamingJsonEncoder\JsonStream($encoder);
+
+while (!$stream->eof()) {
+    echo $stream->read(1024 * 8);
+}
+```
+
+For more information about PSR-7 streams, please refer to the [PSR-7
+documentation](http://www.php-fig.org/psr/psr-7/#psrhttpmessagestreaminterface).
+
+### How the encoder resolves values ###
+
+Since Streaming JSON Encoder only handles values one at a time and tries to
+avoid loading entire data sets into memory at once, there are several
+fundamental differences to how this library handles values compared to
+`json_encode`.
+
+To determine whether any given value should be encoded as an object or as an
+array, the encoder makes the following decisions:
+
+  * Only arrays that have keys from 0 to n-1 in that order are encoded as JSON
+    arrays. All other arrays are encoded as objects.
+  * Any object is encoded as a JSON array if the key of the first value
+    returned by iterating over the objects equals to `0`. All other objects are
+    encoded as JSON objects.
+    
+Additionally, prior to the decision whether to encode an object as an array or
+an object is made, the encoder will attempt to resolve the value as follows:
+
+  * As long as the processed value is a `JsonSerializable`, it will replace the
+    processed value with the return value of the `jsonSerialize()` method.
+  * As long as the processed value is a `Closure`, it will be replaced with the
+    value returned by invoking the closure in question.
+    
+Note that it's possible to override the array or object decision by using the
+`JSON_FORCE_OBJECT` option.
+
+### JSON encoding options ###
+
+Both `BufferJsonEncoder` and `StreamJsonEncoder` have a method `setOptions()` to
+change the JSON encoding options. The accepted options are the same as those
+accepted by `json_encode()` function. The encoder still internally uses the
+`json_encode()` method to encode other values than arrays or object. A few
+options also have additional effects on the encoders:
+
+  * Using `JSON_FORCE_OBJECT` will force all arrays and values to be encoded
+    as JSON objects similar to `json_encode()`.
+  * Using `JSON_PRETTY_PRINT` causes the encoder to output whitespace to make
+    a more readable output. The indentation used can be changed using the
+    method `setIndent()` which accepts either a string argument to use as the
+    indent or an integer to indicate the number of spaces.
+  * Using `JSON_PARTIAL_OUTPUT_ON_ERROR` will cause the encoder to continue the
+    output despite encoding errors. Otherwise the encoding will halt and the
+    encoder will throw an `EncodingException`.
 
 ## Credits ##
 

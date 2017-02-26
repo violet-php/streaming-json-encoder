@@ -3,7 +3,7 @@
 namespace Violet\StreamingJsonEncoder;
 
 /**
- * AbstractJsonEncoder.
+ * Abstract encoder for encoding JSON iteratively.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2016, Riikka Kalliomäki
@@ -216,8 +216,12 @@ abstract class AbstractJsonEncoder implements \Iterator
      */
     private function processValue($value)
     {
-        while ($value instanceof \JsonSerializable) {
-            $value = $value->jsonSerialize();
+        while ($this->isResolvable($value)) {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            } elseif ($value instanceof \Closure) {
+                $value = $value();
+            }
         }
 
         if (is_array($value) || is_object($value)) {
@@ -225,6 +229,16 @@ abstract class AbstractJsonEncoder implements \Iterator
         } else {
             $this->outputJson($value, JsonToken::T_VALUE);
         }
+    }
+
+    /**
+     * Tells if the given value should be resolved prior to encoding
+     * @param mixed $value The value to test
+     * @return bool true if the value is resolvable, false if not
+     */
+    private function isResolvable($value)
+    {
+        return $value instanceof \JsonSerializable || $value instanceof \Closure;
     }
 
     /**
@@ -240,6 +254,9 @@ abstract class AbstractJsonEncoder implements \Iterator
         if ($this->options & JSON_PARTIAL_OUTPUT_ON_ERROR) {
             return;
         }
+
+        $this->stack = [];
+        $this->step = null;
 
         throw new EncodingException($errorMessage);
     }

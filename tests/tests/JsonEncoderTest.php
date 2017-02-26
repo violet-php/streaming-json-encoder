@@ -287,6 +287,32 @@ JSON;
         $this->assertSame(false, $encoder->valid());
     }
 
+    public function testInvalidStatusAfterError()
+    {
+        $encoder = new BufferJsonEncoder(['foo', fopen('php://memory', 'wr')]);
+        $result = null;
+
+        try {
+            $encoder->encode();
+        } catch (EncodingException $exception) {
+            $result = $exception;
+        }
+
+        $this->assertInstanceOf(EncodingException::class, $result);
+        $this->assertFalse($encoder->valid());
+    }
+
+    public function testClosureResolving()
+    {
+        $encoder = new BufferJsonEncoder(function () {
+            foreach (range(0, 9) as $value) {
+                yield $value;
+            }
+        });
+
+        $this->assertSame('[0,1,2,3,4,5,6,7,8,9]', $encoder->encode());
+    }
+
     public function assertEncodingResult($expectedJson, $expectedData, $initialData, $options = 0)
     {
         $encoder = new BufferJsonEncoder($initialData);
