@@ -20,7 +20,7 @@ In order to increase interoperability, the library also provides a PSR-7
 compatible stream to use with frameworks and HTTP requests.
 
 API documentation for the library can be generated using Sami and found
-[online](https://violet.riimu.net/api/streaming-json-encoder/).
+[online](http://violet.riimu.net/api/streaming-json-encoder/).
 
 [![Travis](https://img.shields.io/travis/violet-php/streaming-json-encoder.svg?style=flat-square)](https://travis-ci.org/violet-php/streaming-json-encoder)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)

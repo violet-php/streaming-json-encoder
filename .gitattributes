@@ -8,3 +8,4 @@ tests export-ignore
 .php_cs export-ignore
 .travis.yml export-ignore
 phpunit.xml export-ignore
+sami_config.php export-ignore
