@@ -103,7 +103,7 @@ class JsonStreamTest extends TestCase
             'wrapper_data',
             'mode',
             'seekable',
-            'uri'
+            'uri',
         ], array_keys($stream->getMetadata()));
     }
 

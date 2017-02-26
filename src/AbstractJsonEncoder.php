@@ -58,7 +58,7 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
-     * Sets the JSON encoding options
+     * Sets the JSON encoding options.
      * @param int $options The JSON encoding options that are used by json_encode
      * @return $this Returns self for call chaining
      */
@@ -130,7 +130,7 @@ abstract class AbstractJsonEncoder implements \Iterator
 
     /**
      * Returns the current value or state from the encoder.
-     * @return mixed The current value or state from the encoder.
+     * @return mixed The current value or state from the encoder
      */
     abstract public function current();
 
@@ -178,7 +178,7 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
-     * Handles the next value from the generator to be encoded as JSON
+     * Handles the next value from the generator to be encoded as JSON.
      * @param \Generator $generator The generator used to generate the next value
      * @param bool $isObject True if the generator is being handled as an object, false if not
      */

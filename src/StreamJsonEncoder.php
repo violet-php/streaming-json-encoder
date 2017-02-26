@@ -78,7 +78,7 @@ class StreamJsonEncoder extends AbstractJsonEncoder
     }
 
     /**
-     * Echoes to given string or passes it to the stream callback
+     * Echoes to given string or passes it to the stream callback.
      * @param string $string The string to output
      * @param int $token The type of the string
      */

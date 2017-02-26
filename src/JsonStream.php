@@ -323,7 +323,7 @@ class JsonStream implements StreamInterface
             'wrapper_type' => 'OBJECT',
             'wrapper_data' => [
                 'step' => $this->encoder->key(),
-                'errors' => $this->encoder->getErrors()
+                'errors' => $this->encoder->getErrors(),
             ],
             'mode' => 'r',
             'seekable' => true,
