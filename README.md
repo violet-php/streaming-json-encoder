@@ -25,7 +25,7 @@ API documentation for the library can be generated using Sami and found
 [![Travis](https://img.shields.io/travis/violet-php/streaming-json-encoder.svg?style=flat-square)](https://travis-ci.org/violet-php/streaming-json-encoder)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
-[![Packagist](https://img.shields.io/packagist/v/violet-php/streaming-json-encoder..svg)](https://packagist.org/packages/violet/streaming-json-encoder)
+[![Packagist](https://img.shields.io/packagist/v/violet/streaming-json-encoder.svg)](https://packagist.org/packages/violet/streaming-json-encoder)
 
 ## Requirements ##
 
