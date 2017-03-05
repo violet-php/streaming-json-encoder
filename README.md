@@ -25,7 +25,7 @@ API documentation for the library can be generated using Sami and found
 [![Travis](https://img.shields.io/travis/violet-php/streaming-json-encoder.svg?style=flat-square)](https://travis-ci.org/violet-php/streaming-json-encoder)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/violet-php/streaming-json-encoder.svg?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
-[![Packagist](https://img.shields.io/packagist/v/violet/streaming-json-encoder.svg)](https://packagist.org/packages/violet/streaming-json-encoder)
+[![Packagist](https://img.shields.io/packagist/v/violet/streaming-json-encoder.svg?style=flat-square)](https://packagist.org/packages/violet/streaming-json-encoder)
 
 ## Requirements ##
 
@@ -40,9 +40,9 @@ The easiest way to install this library is to use Composer to handle your
 dependencies. In order to install this library via Composer, simply follow
 the following two steps:
 
-  1. Acquire the `composer.phar` by running in your project root the
-     Command-line installation script found at the [Composer
-     Download](https://getcomposer.org/download/) page.
+  1. Acquire the `composer.phar` by running the Composer [Command-line
+     installation script](https://getcomposer.org/download/) in your project
+     root.
   2. Once you've run the installation script, you should have a `composer.phar` 
      file in you project root and you can run the following command:
     

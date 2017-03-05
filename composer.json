@@ -1,11 +1,13 @@
 {
   "name": "violet/streaming-json-encoder",
   "type": "library",
-  "description": "Library for encoding large data sets in JSON",
+  "description": "Library for iteratively encoding large JSON documents piece by piece",
   "homepage": "http://violet.riimu.net",
   "keywords": [
+    "streaming",
     "json",
-    "encoder"
+    "encoder",
+    "psr-7"
   ],
   "license": "MIT",
   "authors": [
