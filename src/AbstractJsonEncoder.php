@@ -185,22 +185,8 @@ abstract class AbstractJsonEncoder implements \Iterator
     private function processStack(\Generator $generator, $isObject)
     {
         if ($isObject) {
-            $key = $generator->key();
-
-            if (!is_int($key) && !is_string($key)) {
-                $this->addError('Only string or integer keys are supported');
+            if (!$this->processKey($generator->key())) {
                 return;
-            }
-
-            if (!$this->first) {
-                $this->outputLine(',', JsonToken::T_COMMA);
-            }
-
-            $this->outputJson((string) $key, JsonToken::T_NAME);
-            $this->output(':', JsonToken::T_COLON);
-
-            if ($this->options & JSON_PRETTY_PRINT) {
-                $this->output(' ', JsonToken::T_WHITESPACE);
             }
         } elseif (!$this->first) {
             $this->outputLine(',', JsonToken::T_COMMA);
@@ -208,6 +194,32 @@ abstract class AbstractJsonEncoder implements \Iterator
 
         $this->first = false;
         $this->processValue($generator->current());
+    }
+
+    /**
+     * Handles the given value key into JSON.
+     * @param mixed $key The key to process
+     * @return bool True if the key is valid, false if not
+     */
+    private function processKey($key)
+    {
+        if (!is_int($key) && !is_string($key)) {
+            $this->addError('Only string or integer keys are supported');
+            return false;
+        }
+
+        if (!$this->first) {
+            $this->outputLine(',', JsonToken::T_COMMA);
+        }
+
+        $this->outputJson((string) $key, JsonToken::T_NAME);
+        $this->output(':', JsonToken::T_COLON);
+
+        if ($this->options & JSON_PRETTY_PRINT) {
+            $this->output(' ', JsonToken::T_WHITESPACE);
+        }
+
+        return true;
     }
 
     /**
