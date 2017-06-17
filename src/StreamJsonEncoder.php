@@ -82,7 +82,7 @@ class StreamJsonEncoder extends AbstractJsonEncoder
      * @param string $string The string to output
      * @param int $token The type of the string
      */
-    public function write($string, $token)
+    protected function write($string, $token)
     {
         if ($this->stream === null) {
             echo $string;

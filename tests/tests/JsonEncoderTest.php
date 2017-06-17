@@ -3,6 +3,7 @@
 namespace Violet\StreamingJsonEncoder;
 
 use PHPUnit\Framework\TestCase;
+use Violet\StreamingJsonEncoder\Test\DateEncoder;
 use Violet\StreamingJsonEncoder\Test\SerializableData;
 
 /**
@@ -14,6 +15,26 @@ use Violet\StreamingJsonEncoder\Test\SerializableData;
  */
 class JsonEncoderTest extends TestCase
 {
+    public function testEmptyEncoding()
+    {
+        $this->assertEncodingResult('[]', [], []);
+        $this->assertEncodingResult('[]', [], new \ArrayObject([]));
+        $this->assertEncodingResult('{}', [], (object) []);
+    }
+
+    public function testObjectTyping()
+    {
+        $this->assertEncodingResult('["foo"]', ['foo'], ['foo']);
+        $this->assertEncodingResult('{"0":"foo"}', ['foo'], (object) ['foo']);
+        $this->assertEncodingResult('{"1":"foo"}', [1 => 'foo'], [1 => 'foo']);
+
+        $this->assertEncodingResult('["foo"]', ['foo'], new \ArrayObject(['foo']));
+        $this->assertEncodingResult('{"1":"foo"}', [1 => 'foo'], new \ArrayObject([1 => 'foo']));
+        $this->assertEncodingResult('{"0":"foo"}', ['foo'], function () {
+            yield '0' => 'foo';
+        });
+    }
+
     public function testPrettyPrint()
     {
         $expectedJson = <<<'JSON'
@@ -138,7 +159,7 @@ JSON;
 
         $encoder = $this->assertEncodingResult($expectedJson, $result, $array, JSON_PARTIAL_OUTPUT_ON_ERROR);
         $this->assertSame([
-            'Line 1, column 10: Type is not supported',
+            'Line 1, column 10: Type is not supported (JSON_ERROR_UNSUPPORTED_TYPE)',
             'Line 1, column 35: Only string or integer keys are supported',
         ], $encoder->getErrors());
     }
@@ -311,6 +332,17 @@ JSON;
         });
 
         $this->assertSame('[0,1,2,3,4,5,6,7,8,9]', $encoder->encode());
+    }
+
+    public function testValueStackResolving()
+    {
+        $date = new \DateTime();
+        $encoder = new DateEncoder([$date]);
+
+        $this->assertSame(
+            sprintf('["<time datetime="%s">%s</time>"]', $date->format('c'), $date->format('r')),
+            $encoder->encode()
+        );
     }
 
     public function assertEncodingResult($expectedJson, $expectedData, $initialData, $options = 0)

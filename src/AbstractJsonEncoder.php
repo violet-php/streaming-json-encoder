@@ -17,6 +17,9 @@ abstract class AbstractJsonEncoder implements \Iterator
     /** @var bool[] True for every object in the stack, false for an array */
     private $stackType;
 
+    /** @var array Stack of values being encoded */
+    private $valueStack;
+
     /** @var bool Whether the next value is the first value in an array or an object */
     private $first;
 
@@ -98,11 +101,20 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
+     * Returns the current encoding value stack.
+     * @return array The current encoding value stack
+     */
+    protected function getValueStack()
+    {
+        return $this->valueStack;
+    }
+
+    /**
      * Initializes the iterator if it has not been initialized yet.
      */
     private function initialize()
     {
-        if ($this->stack === null) {
+        if (!isset($this->stack)) {
             $this->rewind();
         }
     }
@@ -146,6 +158,7 @@ abstract class AbstractJsonEncoder implements \Iterator
 
         $this->stack = [];
         $this->stackType = [];
+        $this->valueStack = [];
         $this->errors = [];
         $this->newLine = false;
         $this->first = true;
@@ -229,12 +242,14 @@ abstract class AbstractJsonEncoder implements \Iterator
      */
     private function processValue($value)
     {
+        $this->valueStack[] = $value;
         $value = $this->resolveValue($value);
 
         if (is_array($value) || is_object($value)) {
             $this->pushStack($value);
         } else {
             $this->outputJson($value, JsonToken::T_VALUE);
+            array_pop($this->valueStack);
         }
     }
 
@@ -251,11 +266,9 @@ abstract class AbstractJsonEncoder implements \Iterator
             } elseif ($value instanceof \Closure) {
                 $value = $value();
             } else {
-                break;
+                return $value;
             }
         } while (true);
-
-        return $value;
     }
 
     /**
@@ -322,11 +335,11 @@ abstract class AbstractJsonEncoder implements \Iterator
             return true;
         }
 
-        if (is_array($iterable)) {
-            return $this->isAssociative($iterable);
+        if ($iterable instanceof \Traversable) {
+            return $iterator->valid() && $iterator->key() !== 0;
         }
 
-        return $iterator->valid() ? $iterator->key() !== 0 : !$iterable instanceof \Traversable;
+        return is_object($iterable) || $this->isAssociative($iterable);
     }
 
     /**
@@ -368,6 +381,8 @@ abstract class AbstractJsonEncoder implements \Iterator
         } else {
             $this->output(']', JsonToken::T_RIGHT_BRACKET);
         }
+
+        array_pop($this->valueStack);
     }
 
     /**
@@ -381,7 +396,7 @@ abstract class AbstractJsonEncoder implements \Iterator
         $error = json_last_error();
 
         if ($error !== JSON_ERROR_NONE) {
-            $this->addError(sprintf('%s (%s)', json_last_error_msg(), $this->getJsonErrorName($error));
+            $this->addError(sprintf('%s (%s)', json_last_error_msg(), $this->getJsonErrorName($error)));
         }
 
         $this->output($encoded, $token);
@@ -403,8 +418,6 @@ abstract class AbstractJsonEncoder implements \Iterator
                 return $match;
             }
         }
-
-        return 'UNKNOWN';
     }
 
     /**

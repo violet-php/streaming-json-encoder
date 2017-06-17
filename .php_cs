@@ -8,22 +8,30 @@ return \PhpCsFixer\Config::create()
     ->setRules([
         '@PSR2' => true,
 
-        'array_syntax' => ['syntax' => 'short'],
+        'array_syntax' => [
+            'syntax' => 'short'
+        ],
         'binary_operator_spaces' => [
-            'align_equals' => false,
             'align_double_arrow' => null,
+            'align_equals' => false,
         ],
         'blank_line_after_opening_tag' => true,
         'cast_spaces' => true,
-        'concat_space' => ['spacing' => 'one'],
+        'combine_consecutive_unsets' => true,
+        'concat_space' => [
+            'spacing' => 'one'
+        ],
         'declare_equal_normalize' => true,
         'dir_constant' => true,
         'ereg_to_preg' => true,
+        'function_to_constant' => true,
         'function_typehint_space' => true,
         'hash_to_slash_comment' => true,
         'heredoc_to_nowdoc' => true,
         'include' => true,
+        'is_null' => true,
         'lowercase_cast' => true,
+        'magic_constant_casing' => true,
         'method_separation' => true,
         'modernize_types_casting' => true,
         'native_function_casing' => true,
@@ -39,6 +47,7 @@ return \PhpCsFixer\Config::create()
         'no_leading_namespace_whitespace' => true,
         'no_mixed_echo_print' => true,
         'no_multiline_whitespace_around_double_arrow' => true,
+        'no_multiline_whitespace_before_semicolons' => true,
         'no_php4_constructor' => true,
         'no_short_bool_cast' => true,
         'no_singleline_whitespace_before_semicolons' => true,
@@ -50,8 +59,12 @@ return \PhpCsFixer\Config::create()
         'no_useless_return' => true,
         'no_whitespace_before_comma_in_array' => true,
         'no_whitespace_in_blank_line' => true,
+        'non_printable_character' => true,
         'normalize_index_brace' => true,
         'object_operator_without_whitespace' => true,
+        'ordered_class_elements' => [
+            'order' => ['use_trait', 'constant', 'property', 'construct', 'method'],
+        ],
         'ordered_imports' => true,
         'php_unit_construct' => true,
         'php_unit_dedicate_assert' => true,

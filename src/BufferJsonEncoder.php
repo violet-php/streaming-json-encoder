@@ -59,7 +59,7 @@ class BufferJsonEncoder extends AbstractJsonEncoder
      * @param string $string The JSON string to write
      * @param int $token The type of the token
      */
-    public function write($string, $token)
+    protected function write($string, $token)
     {
         $this->buffer .= $string;
     }
