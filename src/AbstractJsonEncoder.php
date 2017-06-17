@@ -11,7 +11,7 @@ namespace Violet\StreamingJsonEncoder;
  */
 abstract class AbstractJsonEncoder implements \Iterator
 {
-    /** @var \Generator[] Current value stack in encoding */
+    /** @var \Iterator[] Current value stack in encoding */
     private $stack;
 
     /** @var bool[] True for every object in the stack, false for an array */
@@ -54,13 +54,13 @@ abstract class AbstractJsonEncoder implements \Iterator
         $this->options = 0;
         $this->errors = [];
         $this->indent = '    ';
-        $this->step = null;
     }
 
     /**
      * Sets the JSON encoding options.
      * @param int $options The JSON encoding options that are used by json_encode
      * @return $this Returns self for call chaining
+     * @throws \RuntimeException If changing encoding options during encoding operation
      */
     public function setOptions($options)
     {
@@ -76,6 +76,7 @@ abstract class AbstractJsonEncoder implements \Iterator
      * Sets the indent for the JSON output.
      * @param string|int $indent A string to use as indent or the number of spaces
      * @return $this Returns self for call chaining
+     * @throws \RuntimeException If changing indent during encoding operation
      */
     public function setIndent($indent)
     {
@@ -101,7 +102,7 @@ abstract class AbstractJsonEncoder implements \Iterator
      */
     private function initialize()
     {
-        if (!isset($this->stack)) {
+        if ($this->stack === null) {
             $this->rewind();
         }
     }
@@ -164,11 +165,11 @@ abstract class AbstractJsonEncoder implements \Iterator
 
         if (!empty($this->stack)) {
             $this->step++;
-            $generator = end($this->stack);
+            $iterator = end($this->stack);
 
-            if ($generator->valid()) {
-                $this->processStack($generator, end($this->stackType));
-                $generator->next();
+            if ($iterator->valid()) {
+                $this->processStack($iterator, end($this->stackType));
+                $iterator->next();
             } else {
                 $this->popStack();
             }
@@ -178,14 +179,14 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
-     * Handles the next value from the generator to be encoded as JSON.
-     * @param \Generator $generator The generator used to generate the next value
-     * @param bool $isObject True if the generator is being handled as an object, false if not
+     * Handles the next value from the iterator to be encoded as JSON.
+     * @param \Iterator $iterator The iterator used to generate the next value
+     * @param bool $isObject True if the iterator is being handled as an object, false if not
      */
-    private function processStack(\Generator $generator, $isObject)
+    private function processStack(\Iterator $iterator, $isObject)
     {
         if ($isObject) {
-            if (!$this->processKey($generator->key())) {
+            if (!$this->processKey($iterator->key())) {
                 return;
             }
         } elseif (!$this->first) {
@@ -193,7 +194,7 @@ abstract class AbstractJsonEncoder implements \Iterator
         }
 
         $this->first = false;
-        $this->processValue($generator->current());
+        $this->processValue($iterator->current());
     }
 
     /**
@@ -228,13 +229,7 @@ abstract class AbstractJsonEncoder implements \Iterator
      */
     private function processValue($value)
     {
-        while ($this->isResolvable($value)) {
-            if ($value instanceof \JsonSerializable) {
-                $value = $value->jsonSerialize();
-            } elseif ($value instanceof \Closure) {
-                $value = $value();
-            }
-        }
+        $value = $this->resolveValue($value);
 
         if (is_array($value) || is_object($value)) {
             $this->pushStack($value);
@@ -244,13 +239,23 @@ abstract class AbstractJsonEncoder implements \Iterator
     }
 
     /**
-     * Tells if the given value should be resolved prior to encoding.
-     * @param mixed $value The value to test
-     * @return bool true if the value is resolvable, false if not
+     * Resolves the actual value of any given value that is about to be processed.
+     * @param mixed $value The value to resolve
+     * @return mixed The resolved value
      */
-    private function isResolvable($value)
+    protected function resolveValue($value)
     {
-        return $value instanceof \JsonSerializable || $value instanceof \Closure;
+        do {
+            if ($value instanceof \JsonSerializable) {
+                $value = $value->jsonSerialize();
+            } elseif ($value instanceof \Closure) {
+                $value = $value();
+            } else {
+                break;
+            }
+        } while (true);
+
+        return $value;
     }
 
     /**
@@ -279,8 +284,8 @@ abstract class AbstractJsonEncoder implements \Iterator
      */
     private function pushStack($iterable)
     {
-        $generator = $this->getIterator($iterable);
-        $isObject = $this->isObject($iterable, $generator);
+        $iterator = $this->getIterator($iterable);
+        $isObject = $this->isObject($iterable, $iterator);
 
         if ($isObject) {
             $this->outputLine('{', JsonToken::T_LEFT_BRACE);
@@ -289,7 +294,7 @@ abstract class AbstractJsonEncoder implements \Iterator
         }
 
         $this->first = true;
-        $this->stack[] = $generator;
+        $this->stack[] = $iterator;
         $this->stackType[] = $isObject;
     }
 
@@ -308,18 +313,42 @@ abstract class AbstractJsonEncoder implements \Iterator
     /**
      * Tells if the given iterable should be handled as a JSON object or not.
      * @param object|array $iterable The iterable value to test
-     * @param \Generator $generator Generator created from the iterable value
+     * @param \Iterator $iterator An Iterator created from the iterable value
      * @return bool True if the given iterable should be treated as object, false if not
      */
-    private function isObject($iterable, \Generator $generator)
+    private function isObject($iterable, \Iterator $iterator)
     {
         if ($this->options & JSON_FORCE_OBJECT) {
             return true;
-        } elseif (is_array($iterable)) {
-            return $iterable !== [] && array_keys($iterable) !== range(0, count($iterable) - 1);
         }
 
-        return $generator->valid() && $generator->key() !== 0;
+        if (is_array($iterable)) {
+            return $this->isAssociative($iterable);
+        }
+
+        return $iterator->valid() ? $iterator->key() !== 0 : !$iterable instanceof \Traversable;
+    }
+
+    /**
+     * Tells if the given array is an associative array.
+     * @param array $array The array to test
+     * @return bool True if the array is associative, false if not
+     */
+    private function isAssociative(array $array)
+    {
+        if ($array === []) {
+            return false;
+        }
+
+        $expected = 0;
+
+        foreach ($array as $key => $_) {
+            if ($key !== $expected++) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -349,12 +378,33 @@ abstract class AbstractJsonEncoder implements \Iterator
     private function outputJson($value, $token)
     {
         $encoded = json_encode($value, $this->options);
+        $error = json_last_error();
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->addError(json_last_error_msg());
+        if ($error !== JSON_ERROR_NONE) {
+            $this->addError(sprintf('%s (%s)', json_last_error_msg(), $this->getJsonErrorName($error));
         }
 
         $this->output($encoded, $token);
+    }
+
+    /**
+     * Returns the name of the JSON error constant.
+     * @param int $error The error code to find
+     * @return string The name for the error code
+     */
+    private function getJsonErrorName($error)
+    {
+        $matches = array_keys(get_defined_constants(), $error, true);
+        $prefix = 'JSON_ERROR_';
+        $prefixLength = strlen($prefix);
+
+        foreach ($matches as $match) {
+            if (strncmp($match, $prefix, $prefixLength) === 0) {
+                return $match;
+            }
+        }
+
+        return 'UNKNOWN';
     }
 
     /**
@@ -383,7 +433,7 @@ abstract class AbstractJsonEncoder implements \Iterator
                 $this->write($indent, JsonToken::T_WHITESPACE);
             }
 
-            $this->line += 1;
+            $this->line++;
             $this->column = strlen($indent) + 1;
         }
 
