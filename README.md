@@ -221,32 +221,43 @@ documentation](http://www.php-fig.org/psr/psr-7/#psrhttpmessagestreaminterface).
 
 ### How the encoder resolves values ###
 
-Since Streaming JSON Encoder only handles values one at a time and tries to
-avoid loading entire data sets into memory at once, there are several
-fundamental differences to how this library handles values compared to
-`json_encode`.
+In many ways, the Streaming JSON encoder is intended to work mostly as a drop in
+replacement for `json_encode()`. However, since the encoder is intended to deal
+with large data sets, there are some notable differences in how it handles
+objects and arrays.
 
-To determine whether any given value should be encoded as an object or as an
-array, the encoder makes the following decisions:
+First, to determine how to encode an object, the encoder will attempt to resolve
+the object values in following ways:
 
-  * Only arrays that have keys from 0 to n-1 in that order are encoded as JSON
-    arrays. All other arrays are encoded as objects.
-  * Any object is encoded as a JSON array if the key of the first value
-    returned by iterating over the object equals to `0`. All other objects are
-    encoded as JSON objects.
-    
-Additionally, prior to the decision whether to encode an object as an array or
-as an object is made, the encoder will attempt to resolve the value as follows:
+ * For any object that implements `JsonSerializable` the implemented method
+   `jsonSerialize()` is called and return value is used instead.
+ * Any `Closure` will be invoked and the return value will be used instead.
+   However, no other invokables are called in this manner.
 
-  * As long as the processed value is a `JsonSerializable`, the encoder will
-    replace the processed value with the return value of the `jsonSerialize()`
-    method.
-  * As long as the processed value is a `Closure`, it will be replaced with the
-    value returned by invoking the closure.
-    
-Note that it's possible to override the decision between an array or an object
-by using the `JSON_FORCE_OBJECT` option, which will force all objects and arrays
-to be encoded as JSON objects.
+The returned value is looped until it cannot be resolved further. After that,
+a decision is made on whether the array or object is encoded as an array or as
+an object. The following logic is used:
+
+ * Any empty array or array that has keys from 0 to n-1 in that order are
+   encoded as JSON arrays. All other arrays are encoded as JSON objects.
+ * If an object implements `Traversable` and it either returns an **interger**
+   `0` as the first key or returns no values at all, it will be encoded as a
+   JSON array (regardless of other keys). All other objects implementing
+   `Traversable` are encoded as JSON objects.
+ * Any other object, whether it's empty or whatever keys it mey have, is encoded
+   as a JSON object.
+
+Note, however, that if the JSON encoding option `JSON_FORCE_OBJECT` is used, all
+objects and arrays are encoded as JSON objects.
+
+Note that all objects are traversed via a `foreach` statement. This means that
+all `Traversable` objects are encoded using the values returned by the iterator.
+For other objects, this means that the public properties are used (as per
+default iteration behavior).
+
+All other values (i.e. nulls, booleans, numbers and strings) are treated exactly
+the same way as `json_encode()` does (and in fact, it's used to encode those
+values).
 
 ### JSON encoding options ###
 
