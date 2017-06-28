@@ -1,6 +1,6 @@
 # Changelog #
 
-## v1.1.0 (2017-06-18) ##
+## v1.1.0 (2017-06-28) ##
 
  * Empty objects and objects that don't implement `Traversable` are now always
    encoded as JSON objects (for `json_encode()` compatibility).
