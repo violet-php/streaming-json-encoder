@@ -121,7 +121,7 @@ abstract class AbstractJsonEncoder implements \Iterator
 
     /**
      * Returns the current number of step in the encoder.
-     * @return mixed The current step number as integer or null if the current state is not valid
+     * @return int|null The current step number as integer or null if the current state is not valid
      */
     public function key()
     {
@@ -266,9 +266,11 @@ abstract class AbstractJsonEncoder implements \Iterator
             } elseif ($value instanceof \Closure) {
                 $value = $value();
             } else {
-                return $value;
+                break;
             }
         } while (true);
+
+        return $value;
     }
 
     /**
