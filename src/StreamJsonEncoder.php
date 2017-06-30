@@ -6,7 +6,7 @@ namespace Violet\StreamingJsonEncoder;
  * Encodes value into JSON and directly echoes it or passes it to a stream.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2016, Riikka Kalliomäki
+ * @copyright Copyright (c) 2016-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class StreamJsonEncoder extends AbstractJsonEncoder

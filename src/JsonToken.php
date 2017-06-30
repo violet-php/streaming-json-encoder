@@ -6,7 +6,7 @@ namespace Violet\StreamingJsonEncoder;
  * List of JSON tokens outputted by the encoder.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2016, Riikka Kalliomäki
+ * @copyright Copyright (c) 2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 final class JsonToken
