@@ -1,10 +1,11 @@
 <?php
 
-// Autoloader for loading the library when composer is not available
+namespace Violet\StreamingJsonEncoder;
+
 spl_autoload_register(function ($class) {
-    if (strncmp($class, $ns = 'Violet\\StreamingJsonEncoder', strlen($ns)) === 0) {
-        $file = substr_replace($class, '\\', 0, strlen($ns)) . '.php';
-        $path = __DIR__ . str_replace('\\', DIRECTORY_SEPARATOR, $file);
+    if (strncmp($class, __NAMESPACE__, strlen(__NAMESPACE__)) === 0) {
+        $path = __DIR__ . strtr(substr($class, strlen(__NAMESPACE__)), ['\\' => DIRECTORY_SEPARATOR]) . '.php';
+
         if (file_exists($path)) {
             require $path;
         }
