@@ -417,7 +417,7 @@ abstract class AbstractJsonEncoder implements \Iterator
         $name = 'UNKNOWN_ERROR';
 
         foreach ($matches as $match) {
-            if (strncmp($match, $prefix, $prefixLength) === 0) {
+            if (is_string($match) && strncmp($match, $prefix, $prefixLength) === 0) {
                 $name = $match;
                 break;
             }
