@@ -414,12 +414,16 @@ abstract class AbstractJsonEncoder implements \Iterator
         $matches = array_keys(get_defined_constants(), $error, true);
         $prefix = 'JSON_ERROR_';
         $prefixLength = strlen($prefix);
+        $name = 'UNKNOWN_ERROR';
 
         foreach ($matches as $match) {
             if (strncmp($match, $prefix, $prefixLength) === 0) {
-                return $match;
+                $name = $match;
+                break;
             }
         }
+
+        return $name;
     }
 
     /**
