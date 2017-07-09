@@ -1,5 +1,11 @@
 # Changelog #
 
+## v1.1.1 (2017-07-09) ##
+
+ * Return `UNKNOWN_ERROR` as error code if valid error constant is not found
+ * Minor improvements to the travis build process
+ * Slightly improve the bundled autoloader
+
 ## v1.1.0 (2017-06-28) ##
 
  * For `json_encode()` compatibility, all objects are encoded as JSON objects
