@@ -1,6 +1,6 @@
 <?php
 
-require '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $iterator = function () {
     foreach (new DirectoryIterator(__DIR__) as $file) {
