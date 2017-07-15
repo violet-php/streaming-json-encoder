@@ -41,7 +41,7 @@ dependencies. In order to install this library via Composer, simply follow
 these two steps:
 
   1. Acquire the `composer.phar` by running the Composer
-     [Command-line installation script](https://getcomposer.org/download/)
+     [Command-line installation](https://getcomposer.org/download/)
      in your project root.
 
   2. Once you have run the installation script, you should have the `composer.phar`
