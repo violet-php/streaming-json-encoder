@@ -297,15 +297,15 @@ JSON;
         $encoder = new BufferJsonEncoder('value');
 
         $this->assertSame(0, $encoder->key());
-        $this->assertSame(true, $encoder->valid());
+        $this->assertTrue($encoder->valid());
 
         $encoder->rewind();
         $this->assertSame(0, $encoder->key());
-        $this->assertSame(true, $encoder->valid());
+        $this->assertTrue($encoder->valid());
 
         $encoder->next();
-        $this->assertSame(null, $encoder->key());
-        $this->assertSame(false, $encoder->valid());
+        $this->assertNull($encoder->key());
+        $this->assertFalse($encoder->valid());
     }
 
     public function testInvalidStatusAfterError()

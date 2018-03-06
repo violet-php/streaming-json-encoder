@@ -92,8 +92,8 @@ class JsonStreamTest extends TestCase
     {
         $stream = new JsonStream('value');
 
-        $this->assertSame(null, $stream->getMetadata('key_that_does_not_exist'));
-        $this->assertSame(true, $stream->getMetadata('seekable'));
+        $this->assertNull($stream->getMetadata('key_that_does_not_exist'));
+        $this->assertTrue($stream->getMetadata('seekable'));
         $this->assertSame(['timed_out',
             'blocked',
             'eof',
