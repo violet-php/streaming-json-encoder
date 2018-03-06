@@ -1,5 +1,10 @@
 # Changelog #
 
+## v1.1.2 (???) ##
+
+ * HHVM support has been dropped due to HHVM's renewed focus on Hack
+ * The library build now also tests for PHP 7.2
+
 ## v1.1.1 (2017-07-09) ##
 
  * Return `UNKNOWN_ERROR` as error code if valid error constant is not found
