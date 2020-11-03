@@ -271,7 +271,7 @@ JSON;
             JsonToken::T_RIGHT_BRACE,
         ];
 
-        $gatherTokens = function ($string, $token) use (& $actualTokens) {
+        $gatherTokens = function ($string, $token) use (&$actualTokens) {
             $actualTokens[] = $token;
         };
 
