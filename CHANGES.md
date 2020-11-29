@@ -1,9 +1,10 @@
 # Changelog #
 
-## v1.1.2 (???) ##
+## v1.1.2 (2020-11-29) ##
 
  * HHVM support has been dropped due to HHVM's renewed focus on Hack
- * The library build now also tests for PHP 7.2
+ * CI build has been migrated to github actions
+ * The CI build now tests for PHP version from 5.6 to 8.0
 
 ## v1.1.1 (2017-07-09) ##
 
