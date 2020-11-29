@@ -47,11 +47,11 @@ jobs:
         with:
           php-version: '7.4'
           coverage: none
-          tools: php-cs-fixer, phpcs
+          tools: cs2pr, php-cs-fixer, phpcs
       - name: Run PHP Coding Standards Fixer
-        run: php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
+        run: php-cs-fixer fix --dry-run --using-cache=no --format=checkstyle | cs2pr
       - name: Run PHP_CodeSniffer
-        run: phpcs -p --standard=PSR12 src tests --exclude=PSR12.Properties.ConstantVisibility
+        run: phpcs --standard=PSR12 --exclude=PSR12.Properties.ConstantVisibility -q --report=checkstyle src tests | cs2pr
   coverage:
     runs-on: ubuntu-latest
     steps:
