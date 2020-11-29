@@ -6,7 +6,7 @@ namespace Violet\StreamingJsonEncoder;
  * Abstract encoder for encoding JSON iteratively.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2016-2017 Riikka Kalliomäki
+ * @copyright Copyright (c) 2016-2020 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 abstract class AbstractJsonEncoder implements \Iterator
