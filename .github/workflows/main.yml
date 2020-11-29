@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
@@ -37,3 +37,18 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
       - name: Test with phpunit
         run: vendor/bin/phpunit
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+          tools: php-cs-fixer, phpcs
+      - name: Run PHP Coding Standards Fixer
+        run: php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
+      - name: Run PHP_CodeSniffer
+        run: phpcs -p --standard=PSR12 src tests
