@@ -123,6 +123,7 @@ abstract class AbstractJsonEncoder implements \Iterator
      * Returns the current number of step in the encoder.
      * @return int|null The current step number as integer or null if the current state is not valid
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         $this->initialize();
@@ -134,6 +135,7 @@ abstract class AbstractJsonEncoder implements \Iterator
      * Tells if the encoder has a valid current state.
      * @return bool True if the iterator has a valid state, false if not
      */
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         $this->initialize();
@@ -145,11 +147,13 @@ abstract class AbstractJsonEncoder implements \Iterator
      * Returns the current value or state from the encoder.
      * @return mixed The current value or state from the encoder
      */
+    #[\ReturnTypeWillChange]
     abstract public function current();
 
     /**
      * Returns the JSON encoding to the beginning.
      */
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         if ($this->step === 0) {
@@ -172,6 +176,7 @@ abstract class AbstractJsonEncoder implements \Iterator
     /**
      * Iterates the next token or tokens to the output stream.
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         $this->initialize();
