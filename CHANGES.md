@@ -1,5 +1,9 @@
 # Changelog #
 
+## v1.1.3 (2021-12-27) ##
+
+* Add support for PHP 8.1
+
 ## v1.1.2 (2020-11-29) ##
 
  * HHVM support has been dropped due to HHVM's renewed focus on Hack
