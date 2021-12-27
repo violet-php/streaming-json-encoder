@@ -12,29 +12,29 @@ namespace Violet\StreamingJsonEncoder;
 final class JsonToken
 {
     /** Represents the [ character that begins an array */
-    public const T_LEFT_BRACKET = 1;
+    const T_LEFT_BRACKET = 1;
 
     /** Represents the ] character the ends an array */
-    public const T_RIGHT_BRACKET = 2;
+    const T_RIGHT_BRACKET = 2;
 
     /** Represents the { character that begins an object */
-    public const T_LEFT_BRACE = 3;
+    const T_LEFT_BRACE = 3;
 
     /** Represents the } character that ends an object */
-    public const T_RIGHT_BRACE = 4;
+    const T_RIGHT_BRACE = 4;
 
     /** Represents a name in an object name/value pair */
-    public const T_NAME = 5;
+    const T_NAME = 5;
 
     /** Represent the : character that separates a name and a value */
-    public const T_COLON = 6;
+    const T_COLON = 6;
 
     /** Represents all values */
-    public const T_VALUE = 7;
+    const T_VALUE = 7;
 
     /** Represents the , character that separates array values and object name/value pairs */
-    public const T_COMMA = 8;
+    const T_COMMA = 8;
 
     /** Represents all whitespace */
-    public const T_WHITESPACE = 9;
+    const T_WHITESPACE = 9;
 }

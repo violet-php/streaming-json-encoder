@@ -94,6 +94,7 @@ return (new PhpCsFixer\Config())
         'ternary_operator_spaces' => true,
         'trailing_comma_in_multiline' => true,
         'trim_array_spaces' => true,
+        'visibility_required' => ['elements' => ['property', 'method']],
         'whitespace_after_comma_in_array' => true,
     ])
     ->setFinder($finder);
