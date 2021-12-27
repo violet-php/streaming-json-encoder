@@ -4,20 +4,18 @@ $finder = \PhpCsFixer\Finder::create()
     ->in(__DIR__ . '/src')
     ->in(__DIR__ . '/tests');
 
-return \PhpCsFixer\Config::create()
+return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setRules([
-        '@PSR2' => true,
+        '@PSR12' => true,
 
         'array_syntax' => [
             'syntax' => 'short'
         ],
-        'binary_operator_spaces' => [
-            'align_double_arrow' => null,
-            'align_equals' => false,
-        ],
+        'binary_operator_spaces' => true,
         'blank_line_after_opening_tag' => true,
         'cast_spaces' => true,
+        'class_attributes_separation' => ['elements' => ['method' => 'one']],
         'combine_consecutive_unsets' => true,
         'concat_space' => [
             'spacing' => 'one'
@@ -27,13 +25,12 @@ return \PhpCsFixer\Config::create()
         'ereg_to_preg' => true,
         'function_to_constant' => true,
         'function_typehint_space' => true,
-        'hash_to_slash_comment' => true,
         'heredoc_to_nowdoc' => true,
         'include' => true,
         'is_null' => true,
         'lowercase_cast' => true,
         'magic_constant_casing' => true,
-        'method_separation' => true,
+        'multiline_whitespace_before_semicolons' => true,
         'modernize_types_casting' => true,
         'native_function_casing' => true,
         'new_with_braces' => true,
@@ -43,12 +40,11 @@ return \PhpCsFixer\Config::create()
         'no_empty_comment' => true,
         'no_empty_phpdoc' => true,
         'no_empty_statement' => true,
-        'no_extra_consecutive_blank_lines' => true,
+        'no_extra_blank_lines' => true,
         'no_leading_import_slash' => true,
         'no_leading_namespace_whitespace' => true,
         'no_mixed_echo_print' => true,
         'no_multiline_whitespace_around_double_arrow' => true,
-        'no_multiline_whitespace_before_semicolons' => true,
         'no_php4_constructor' => true,
         'no_short_bool_cast' => true,
         'no_singleline_whitespace_before_semicolons' => true,
@@ -73,7 +69,7 @@ return \PhpCsFixer\Config::create()
         'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_annotation_without_dot' => true,
         'phpdoc_indent' => true,
-        'phpdoc_inline_tag' => true,
+        'phpdoc_inline_tag_normalizer' => true,
         'phpdoc_no_access' => true,
         'phpdoc_no_alias_tag' => true,
         'phpdoc_no_package' => true,
@@ -84,18 +80,19 @@ return \PhpCsFixer\Config::create()
         'phpdoc_types' => true,
         'phpdoc_var_without_name' => true,
         'pow_to_exponentiation' => true,
-        'psr4' => true,
+        'psr_autoloading' => true,
         'return_type_declaration' => true,
         'self_accessor' => true,
         'short_scalar_cast' => true,
         'single_blank_line_before_namespace' => true,
+        'single_line_comment_style' => true,
         'single_quote' => true,
         'space_after_semicolon' => true,
         'standardize_not_equals' => true,
         'strict_comparison' => true,
         'strict_param' => true,
         'ternary_operator_spaces' => true,
-        'trailing_comma_in_multiline_array' => true,
+        'trailing_comma_in_multiline' => true,
         'trim_array_spaces' => true,
         'whitespace_after_comma_in_array' => true,
     ])
