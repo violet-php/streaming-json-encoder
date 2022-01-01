@@ -21,9 +21,9 @@ compatible stream to use with frameworks and HTTP requests.
 
 The API documentation is available at: http://violet.riimu.net/api/streaming-json-encoder/
 
-[![CI](https://img.shields.io/github/workflow/status/violet-php/streaming-json-encoder/CI/master?style=flat-square)](https://github.com/violet-php/streaming-json-encoder/actions)
-[![Scrutinizer](https://img.shields.io/scrutinizer/quality/g/violet-php/streaming-json-encoder/master?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
-[![codecov](https://img.shields.io/codecov/c/github/violet-php/streaming-json-encoder/master?style=flat-square)](https://codecov.io/gh/violet-php/streaming-json-encoder)
+[![CI](https://img.shields.io/github/workflow/status/violet-php/streaming-json-encoder/CI/main?style=flat-square)](https://github.com/violet-php/streaming-json-encoder/actions)
+[![Scrutinizer](https://img.shields.io/scrutinizer/quality/g/violet-php/streaming-json-encoder/main?style=flat-square)](https://scrutinizer-ci.com/g/violet-php/streaming-json-encoder/)
+[![codecov](https://img.shields.io/codecov/c/github/violet-php/streaming-json-encoder/main?style=flat-square)](https://codecov.io/gh/violet-php/streaming-json-encoder)
 [![Packagist](https://img.shields.io/packagist/v/violet/streaming-json-encoder.svg?style=flat-square)](https://packagist.org/packages/violet/streaming-json-encoder)
 
 ## Requirements ##
