@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
+  PHPUnit:
     strategy:
       matrix:
-        operating-system: [ubuntu-latest]
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        operating-system: [ 'ubuntu-latest', 'windows-latest', 'macos-latest' ]
+        php-versions: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' ]
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Checkout
@@ -22,22 +22,12 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           coverage: none
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Cache composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies
-        run: composer install --no-progress --prefer-dist --classmap-authoritative --no-interaction
-      - name: Setup problem matchers for PHPUnit
-        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-      - name: Test with phpunit
-        run: vendor/bin/phpunit
-  lint:
+          tools: phpunit
+      - name: Setup Composer
+        uses: ./.github/actions/setup-composer
+      - name: Run PHPUnit
+        run: composer test -- --do-not-cache-result
+  PHP_CodeSniffer:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,37 +35,57 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: latest
           coverage: none
-          tools: cs2pr, php-cs-fixer, phpcs
-      - name: Run PHP Coding Standards Fixer
-        run: php-cs-fixer fix --dry-run --using-cache=no --format=checkstyle | cs2pr
+          tools: phpcs
+      - name: Setup Composer
+        uses: ./.github/actions/setup-composer
       - name: Run PHP_CodeSniffer
-        run: phpcs --standard=PSR12 --exclude=PSR12.Properties.ConstantVisibility -q --report=checkstyle src tests | cs2pr
+        run: composer phpcs -- --no-cache
+  PHP-CS-Fixer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: latest
+          coverage: none
+          tools: php-cs-fixer
+      - name: Setup Composer
+        uses: ./.github/actions/setup-composer
+      - name: Run PHP Coding Standards Fixer
+        run: composer php-cs-fixer -- --dry-run --diff --using-cache=no
+  composer-normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: latest
+          coverage: none
+          tools: composer-normalize
+      - name: Setup Composer
+        uses: ./.github/actions/setup-composer
+      - name: Run composer-normalize
+        run: composer normalize --dry-run
   coverage:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-        coverage: xdebug
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - name: Cache composer dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
-    - name: Install dependencies
-      run: composer install --no-progress --prefer-dist --classmap-authoritative --no-interaction
-    - name: Setup problem matchers for PHPUnit
-      run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-    - name: Test with phpunit
-      run: vendor/bin/phpunit --coverage-clover coverage.xml
-    - name: Upload coverage
-      uses: codecov/codecov-action@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: latest
+          coverage: xdebug
+          tools: phpunit
+      - name: Setup Composer
+        uses: ./.github/actions/setup-composer
+      - name: Run PHPUnit with coverage
+        run: composer test -- --do-not-cache-result --coverage-clover coverage.xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1

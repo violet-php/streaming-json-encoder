@@ -21,9 +21,6 @@
     "php": ">=5.6.0",
     "psr/http-message": "^1.0"
   },
-  "require-dev": {
-    "phpunit/phpunit": "^5.7 || ^6.5 || ^9.4"
-  },
   "autoload": {
     "psr-4": {
       "Violet\\StreamingJsonEncoder\\": "src/"
@@ -34,5 +31,16 @@
       "Violet\\StreamingJsonEncoder\\": "tests/tests/",
       "Violet\\StreamingJsonEncoder\\Test\\": "tests/classes/"
     }
+  },
+  "scripts": {
+    "ci-all": [
+      "composer test -- --do-not-cache-result",
+      "composer phpcs -- --no-cache",
+      "composer php-cs-fixer -- --dry-run --diff --using-cache=no",
+      "composer normalize --dry-run"
+    ],
+    "php-cs-fixer": "php-cs-fixer fix -v",
+    "phpcs": "phpcs -p",
+    "test": "phpunit"
   }
 }

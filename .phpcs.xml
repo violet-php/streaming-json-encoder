@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="Project Coding Standard">
+    <description>The coding standard configuration used for this project</description>
+
+    <file>./src/</file>
+    <file>./tests/</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <arg name="extensions" value="php" />
+
+    <rule ref="PSR12">
+        <exclude name="PSR12.Properties.ConstantVisibility" />
+    </rule>
+</ruleset>
