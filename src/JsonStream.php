@@ -261,6 +261,10 @@ class JsonStream implements StreamInterface
      */
     public function read($length)
     {
+        if ($this->eof()) {
+            return '';
+        }
+
         $length = max(0, (int) $length);
         $encoder = $this->getEncoder();
 
@@ -288,8 +292,12 @@ class JsonStream implements StreamInterface
      */
     public function getContents()
     {
+        if ($this->eof()) {
+            return '';
+        }
+
         $encoder = $this->getEncoder();
-        $output = '';
+        $output = $this->buffer;
 
         while ($encoder->valid()) {
             $output .= $encoder->current();
