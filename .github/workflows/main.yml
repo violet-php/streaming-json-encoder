@@ -23,6 +23,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           coverage: none
           tools: phpunit
+          ini-values: error_reporting=E_ALL
       - name: Setup Composer
         uses: ./.github/actions/setup-composer
       - name: Run PHPUnit

@@ -23,6 +23,7 @@ class SerializableData implements \JsonSerializable
         $this->data = $data;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->data;

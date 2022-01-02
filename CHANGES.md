@@ -1,5 +1,11 @@
 # Changelog #
 
+## v1.1.4 (2022-01-02) ##
+
+* Improve Github action workflow
+* Fix additional PHP 8.1 deprecations
+* Fix issue with `JsonStream::getContents()` no returning buffer contents
+
 ## v1.1.3 (2021-12-27) ##
 
 * Add support for PHP 8.1
