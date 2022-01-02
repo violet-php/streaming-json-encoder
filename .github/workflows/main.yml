@@ -22,10 +22,11 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           coverage: none
-          tools: phpunit
           ini-values: error_reporting=E_ALL
       - name: Setup Composer
         uses: ./.github/actions/setup-composer
+      - name: Install PHPUnit
+        run: composer require --dev phpunit/phpunit
       - name: Run PHPUnit
         run: composer test -- --do-not-cache-result
   PHP_CodeSniffer:
@@ -68,9 +69,10 @@ jobs:
         with:
           php-version: latest
           coverage: none
-          tools: composer-normalize
       - name: Setup Composer
         uses: ./.github/actions/setup-composer
+      - name: Install composer-normalize
+        run: composer require --dev ergebnis/composer-normalize
       - name: Run composer-normalize
         run: composer normalize --dry-run
   coverage:
