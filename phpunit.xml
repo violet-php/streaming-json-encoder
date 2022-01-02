@@ -22,5 +22,8 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <file>src/autoload.php</file>
+        </exclude>
     </coverage>
 </phpunit>

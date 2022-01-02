@@ -28,7 +28,7 @@ jobs:
       - name: Install PHPUnit
         run: composer require --dev phpunit/phpunit
       - name: Run PHPUnit
-        run: composer test -- --do-not-cache-result
+        run: composer test
   PHP_CodeSniffer:
     runs-on: ubuntu-latest
     steps:

@@ -148,4 +148,13 @@ class JsonStreamTest extends TestCase
         $this->assertSame('["val', $stream->read(5));
         $this->assertSame('ue"]', $stream->getContents());
     }
+
+    public function testGetContentOnEof()
+    {
+        $encoder = (new BufferJsonEncoder(['value']));
+        $stream = new JsonStream($encoder);
+
+        $this->assertSame('["value"]', $stream->getContents());
+        $this->assertSame('', $stream->getContents());
+    }
 }
