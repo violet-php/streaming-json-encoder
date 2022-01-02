@@ -69,12 +69,11 @@ jobs:
         with:
           php-version: latest
           coverage: none
+          tools: composer-normalize
       - name: Setup Composer
         uses: ./.github/actions/setup-composer
-      - name: Install composer-normalize
-        run: composer require --dev ergebnis/composer-normalize
       - name: Run composer-normalize
-        run: composer normalize --dry-run
+        run: composer-normalize --dry-run
   coverage:
     runs-on: ubuntu-latest
     steps:
