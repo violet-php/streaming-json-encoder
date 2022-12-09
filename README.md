@@ -282,6 +282,6 @@ options also have additional effects on the encoders:
 
 ## Credits ##
 
-This library is Copyright (c) 2017-2020 Riikka Kalliomäki.
+This library is Copyright (c) 2017-2022 Riikka Kalliomäki.
 
 See LICENSE for license and copying information.

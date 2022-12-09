@@ -1,5 +1,9 @@
 # Changelog #
 
+## v1.1.5 (2022-12-09) ##
+
+* Add support for PHP 8.2
+
 ## v1.1.4 (2022-01-02) ##
 
 * Improve Github action workflow
