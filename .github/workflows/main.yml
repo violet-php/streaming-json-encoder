@@ -92,4 +92,4 @@ jobs:
       - name: Run PHPUnit with coverage
         run: composer test -- --do-not-cache-result --coverage-clover coverage.xml
       - name: Upload coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
