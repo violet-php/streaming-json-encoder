@@ -1,0 +1,47 @@
+name: "Prepare Composer"
+description: "Sets up the environment with specific global composer package"
+inputs:
+  token:
+    description: "Authentication token for setup-php"
+    required: true
+  package:
+    description: "Global composer package to set up"
+    required: true
+  php-version:
+    description: "Version for PHP runtime"
+    default: "8.2"
+  coverage:
+    description: "Type of PHP code coverage to set up"
+    default: "none"
+  allow-plugins:
+    description: "Whether to allow plugins for the composer package or not"
+    default: "0"
+runs:
+  using: "composite"
+  steps:
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: ${{ inputs.coverage }}
+        ini-values: error_reporting=E_ALL
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+    - run: composer global require --no-install "${{ inputs.package }}:*"
+      shell: bash
+    - run: composer global config "allow-plugins.${{ inputs.package }}" true
+      if: ${{ inputs.allow-plugins == 1 }}
+      shell: bash
+    - run: cp "$(composer config home)/composer.lock" ./composer.global.lock
+      shell: bash
+    - run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      id: composer-cache
+      shell: bash
+    - uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: Composer-${{ inputs.php-version }}-${{ hashFiles('./composer.lock', './composer.global.lock') }}
+        restore-keys: Composer-${{ inputs.php-version }}-
+    - run: composer install --no-progress --classmap-authoritative
+      shell: bash
+    - run: composer global install --no-progress --classmap-authoritative
+      shell: bash
