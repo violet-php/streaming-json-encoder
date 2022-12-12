@@ -11,22 +11,18 @@ jobs:
   PHPUnit:
     strategy:
       matrix:
-        operating-system: [ 'ubuntu-latest', 'windows-latest', 'macos-latest' ]
-        php-versions: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1' , '8.2']
+        operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2"]
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Prepare Composer
+        uses: ./.github/actions/prepare-composer
         with:
-          php-version: ${{ matrix.php-versions }}
-          coverage: none
-          ini-values: error_reporting=E_ALL
-      - name: Setup Composer
-        uses: ./.github/actions/setup-composer
-      - name: Install PHPUnit
-        run: composer require --dev phpunit/phpunit
+          token: ${{ secrets.GITHUB_TOKEN }}
+          php-version: ${{ matrix.php-version }}
+          package: phpunit/phpunit
       - name: Run PHPUnit
         run: composer test
   PHP_CodeSniffer:
@@ -34,14 +30,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Prepare Composer
+        uses: ./.github/actions/prepare-composer
         with:
-          php-version: latest
-          coverage: none
-          tools: phpcs
-      - name: Setup Composer
-        uses: ./.github/actions/setup-composer
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: squizlabs/php_codesniffer
       - name: Run PHP_CodeSniffer
         run: composer phpcs -- --no-cache
   PHP-CS-Fixer:
@@ -51,14 +44,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Prepare Composer
+        uses: ./.github/actions/prepare-composer
         with:
-          php-version: latest
-          coverage: none
-          tools: php-cs-fixer
-      - name: Setup Composer
-        uses: ./.github/actions/setup-composer
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: friendsofphp/php-cs-fixer
       - name: Run PHP Coding Standards Fixer
         run: composer php-cs-fixer -- --dry-run --diff --using-cache=no
   composer-normalize:
@@ -66,29 +56,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Prepare Composer
+        uses: ./.github/actions/prepare-composer
         with:
-          php-version: latest
-          coverage: none
-          tools: composer-normalize
-      - name: Setup Composer
-        uses: ./.github/actions/setup-composer
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: ergebnis/composer-normalize
+          allow-plugins: 1
       - name: Run composer-normalize
-        run: composer-normalize --dry-run
+        run: composer normalize --dry-run
   coverage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Prepare Composer
+        uses: ./.github/actions/prepare-composer
         with:
-          php-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: phpunit/phpunit
           coverage: xdebug
-          tools: phpunit
-      - name: Setup Composer
-        uses: ./.github/actions/setup-composer
       - name: Run PHPUnit with coverage
         run: composer test -- --do-not-cache-result --coverage-clover coverage.xml
       - name: Upload coverage
