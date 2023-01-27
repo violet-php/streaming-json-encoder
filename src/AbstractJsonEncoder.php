@@ -403,7 +403,7 @@ abstract class AbstractJsonEncoder implements \Iterator
         $error = json_last_error();
 
         if ($error !== JSON_ERROR_NONE) {
-            $this->addError(sprintf('%s (%s)', json_last_error_msg(), $this->getJsonErrorName($error)));
+            $this->addError(sprintf('%s (%s)', json_last_error_msg(), $this->getJsonErrorConstantName($error)));
         }
 
         $this->output($encoded, $token);
@@ -414,9 +414,9 @@ abstract class AbstractJsonEncoder implements \Iterator
      * @param int $error The error code to find
      * @return string The name for the error code
      */
-    private function getJsonErrorName($error)
+    private function getJsonErrorConstantName($error)
     {
-        $matches = array_keys(get_defined_constants(), $error, true);
+        $matches = array_keys(get_defined_constants(true)['json'], $error, true);
         $prefix = 'JSON_ERROR_';
         $prefixLength = strlen($prefix);
         $name = 'UNKNOWN_ERROR';
