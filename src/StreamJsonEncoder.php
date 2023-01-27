@@ -11,7 +11,7 @@ namespace Violet\StreamingJsonEncoder;
  */
 class StreamJsonEncoder extends AbstractJsonEncoder
 {
-    /** @var callable|null The stream callable */
+    /** @var callable|resource|null Write stream */
     private $stream;
 
     /** @var int Number of bytes written in the current step */
@@ -28,9 +28,9 @@ class StreamJsonEncoder extends AbstractJsonEncoder
      * will simply output the json using an echo statement.
      *
      * @param mixed $value The value to encode as JSON
-     * @param callable|null $stream An optional stream to pass the output or null to echo it
+     * @param callable|resource|null $stream An optional stream to pass the output or null to echo it
      */
-    public function __construct($value, callable $stream = null)
+    public function __construct($value, $stream = null)
     {
         parent::__construct($value);
 
@@ -86,6 +86,8 @@ class StreamJsonEncoder extends AbstractJsonEncoder
     {
         if ($this->stream === null) {
             echo $string;
+        } elseif (is_resource($this->stream)) {
+            fwrite($this->stream, $string);
         } else {
             $callback = $this->stream;
             $callback($string, $token);
