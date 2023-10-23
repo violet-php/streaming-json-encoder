@@ -74,7 +74,7 @@ class JsonStream implements StreamInterface
     /**
      * Frees the JSON encoder from memory and prevents further reading from the JSON stream.
      */
-    public function close()
+    public function close(): void
     {
         $this->encoder = null;
     }
@@ -92,7 +92,7 @@ class JsonStream implements StreamInterface
      * Returns the total size of the JSON stream.
      * @return null Always returns null as the total size cannot be determined
      */
-    public function getSize()
+    public function getSize(): ?int
     {
         return null;
     }
@@ -101,7 +101,7 @@ class JsonStream implements StreamInterface
      * Returns the current position of the cursor in the JSON stream.
      * @return int Current position of the cursor
      */
-    public function tell()
+    public function tell(): int
     {
         $this->getEncoder();
         return $this->cursor;
@@ -111,7 +111,7 @@ class JsonStream implements StreamInterface
      * Tells if there are no more bytes to read from the JSON stream.
      * @return bool True if there are no more bytes to read, false if there are
      */
-    public function eof()
+    public function eof(): bool
     {
         return $this->buffer === null;
     }
@@ -120,7 +120,7 @@ class JsonStream implements StreamInterface
      * Tells if the JSON stream is seekable or not.
      * @return bool Always returns true as JSON streams as always seekable
      */
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         return true;
     }
@@ -140,7 +140,7 @@ class JsonStream implements StreamInterface
      * @param int $whence Either SEEK_CUR or SEEK_SET to determine new cursor position
      * @throws \RuntimeException If SEEK_END is used to determine the cursor position
      */
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
         $position = $this->calculatePosition($offset, $whence);
 
@@ -160,7 +160,7 @@ class JsonStream implements StreamInterface
      * @return int The new cursor position
      * @throws \RuntimeException If SEEK_END is used to determine the cursor position
      */
-    private function calculatePosition($offset, $whence)
+    private function calculatePosition(int $offset, int $whence): int
     {
         if ($whence === SEEK_CUR) {
             return max(0, $this->cursor + (int) $offset);
@@ -177,7 +177,7 @@ class JsonStream implements StreamInterface
      * Forwards the JSON stream reading cursor to the given position or to the end of stream.
      * @param int $position The new position of the cursor
      */
-    private function forward($position)
+    private function forward(int $position): void
     {
         $encoder = $this->getEncoder();
 
@@ -209,7 +209,7 @@ class JsonStream implements StreamInterface
      * If the encoding has already been started, rewinding the encoder may not work,
      * if the underlying value being encoded does not support rewinding.
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->seek(0);
     }
@@ -218,7 +218,7 @@ class JsonStream implements StreamInterface
      * Tells if the JSON stream is writable or not.
      * @return bool Always returns false as JSON streams are never writable
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         return false;
     }
@@ -233,7 +233,7 @@ class JsonStream implements StreamInterface
      * @return int The number of bytes written
      * @throws \RuntimeException Always throws a runtime exception
      */
-    public function write($string)
+    public function write(string $string): int
     {
         throw new \RuntimeException('Cannot write to a JSON stream');
     }
@@ -242,7 +242,7 @@ class JsonStream implements StreamInterface
      * Tells if the JSON stream is readable or not.
      * @return bool Always returns true as JSON streams are always readable
      */
-    public function isReadable()
+    public function isReadable(): bool
     {
         return true;
     }
@@ -259,7 +259,7 @@ class JsonStream implements StreamInterface
      * @param int $length The number of bytes to return
      * @return string The bytes read from the JSON stream
      */
-    public function read($length)
+    public function read(int $length): string
     {
         if ($this->eof()) {
             return '';
@@ -290,7 +290,7 @@ class JsonStream implements StreamInterface
      * Returns the remaining bytes from the JSON stream.
      * @return string The remaining bytes from JSON stream
      */
-    public function getContents()
+    public function getContents(): string
     {
         if ($this->eof()) {
             return '';
@@ -320,7 +320,7 @@ class JsonStream implements StreamInterface
      * @param string|null $key The key of the value to return
      * @return array|mixed|null The meta data array, a specific value or null if not defined
      */
-    public function getMetadata($key = null)
+    public function getMetadata(?string $key = null)
     {
         $meta = [
             'timed_out' => false,
